@@ -14,12 +14,15 @@ type: application
 
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
-version: 0.9.0-edeecc3
+version: 0.9.0
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application.
-appVersion: 0.9.0-edeecc3
+appVersion: 0.9.0
+kubeVersion: ">=1.14.0-0"
 home: https://github.com/fluid-cloudnative/fluid
+sources:
+  - https://github.com/fluid-cloudnative/fluid
 keywords:
   - category:data
   - fluid
