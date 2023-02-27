@@ -6,7 +6,7 @@ on:
       - master
       - charts
     paths:
-      - "fluid/**"
+      - "charts/**"
 
 jobs:
   release:
