@@ -4,9 +4,9 @@ on:
   push:
     branches:
       - master
-      - gh-pages
+      - charts
     paths:
-      - "charts/**"
+      - "fluid/**"
 
 jobs:
   release:
