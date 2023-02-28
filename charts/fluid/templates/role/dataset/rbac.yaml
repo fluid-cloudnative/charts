@@ -36,8 +36,6 @@ rules:
       - databackups/status
       - datasets
       - datasets/status
-      - datamigrates
-      - datamigrates/status
       - alluxioruntimes
       - alluxioruntimes/status
       - jindoruntimes
