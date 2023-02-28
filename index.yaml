@@ -16,6 +16,6 @@ entries:
     - https://github.com/fluid-cloudnative/fluid
     type: application
     urls:
-    - http://charts.fluid-cloudnative.io/fluid-0.9.0-alpha.1.tgz
+    - https://fluid-cloudnative.github.io/charts/fluid-0.9.0-alpha.1.tgz
     version: 0.9.0-alpha.1
 generated: "2023-02-28T01:24:49.482251868Z"
