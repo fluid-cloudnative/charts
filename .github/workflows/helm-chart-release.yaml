@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - charts
     paths:
       - "charts/**"
 
