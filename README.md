@@ -8,6 +8,12 @@ Add Fluid repository to Helm repos:
 helm repo add fluid https://fluid-cloudnative.github.io/charts
 ```
 
+Update to get the latest information about charts from the respective chart repositories.
+
+```bash
+helm repo update
+```
+
 ## Stable version
 
 Search available version:
