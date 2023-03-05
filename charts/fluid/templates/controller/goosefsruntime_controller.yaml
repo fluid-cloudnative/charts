@@ -21,7 +21,7 @@ spec:
         control-plane: goosefsruntime-controller
       annotations:
       {{ if gt (.Values.runtime.goosefs.replicas | int) 1 -}}
-         controller.runtime.fluid.io/replicas: {{ .Values.runtime.goosefs.replicas | quote }}
+        replicas: {{ .Values.runtime.goosefs.replicas | quote }}
       {{- end }}
     spec:
       {{- with .Values.image.imagePullSecrets }}
