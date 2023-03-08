@@ -2,7 +2,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: goosefsruntime-controller
+  name: eacruntime-controller
 rules:
   - apiGroups:
     - ""
@@ -97,11 +97,9 @@ rules:
   - apiGroups:
       - data.fluid.io
     resources:
-      - goosefsdataloads
-      - goosefsruntimes
+      - eacruntimes
       - datasets
-      - goosefsdataloads/status
-      - goosefsruntimes/status
+      - eacruntimes/status
       - datasets/status
     verbs:
       - '*'
@@ -119,23 +117,23 @@ rules:
     resources:
       - leases
     verbs:
-      - '*'
+      - "*"
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: goosefsruntime-clusterrolebinding
+  name: eacruntime-clusterrolebinding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: goosefsruntime-controller
+  name: eacruntime-controller
 subjects:
   - kind: ServiceAccount
-    name: goosefsruntime-controller
+    name: eacruntime-controller
     namespace: fluid-system
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: goosefsruntime-controller
+  name: eacruntime-controller
   namespace: fluid-system

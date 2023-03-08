@@ -19,6 +19,8 @@ rules:
       - jindoruntimes
       - juicefsruntimes
       - goosefsruntimes
+      - thinruntimes
+      - eacruntimes
     verbs:
       - get
       - list
