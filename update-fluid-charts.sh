@@ -25,4 +25,4 @@ if [ -d "$fluid_dir" ]; then
 fi
 
 # Copy the 'fluid' directory in the current directory to the 'charts' directory
-cp "$fluid_source_dir/fluid" "$charts_dir"
+cp -r "$fluid_source_dir/fluid" "$charts_dir"
