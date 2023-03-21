@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e # Set to stop execution on error
+set -ex # Set to stop execution on error
 
 charts_dir="charts"
 fluid_dir="$charts_dir/fluid"
