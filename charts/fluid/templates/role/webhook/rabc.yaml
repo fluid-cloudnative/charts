@@ -19,8 +19,6 @@ rules:
       - jindoruntimes
       - juicefsruntimes
       - goosefsruntimes
-      - thinruntimes
-      - eacruntimes
     verbs:
       - get
       - list
@@ -74,11 +72,11 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: fluid-webhook
-    namespace: {{ include "fluid.namespace" . }}
+    namespace: fluid-system
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: fluid-webhook
-  namespace: {{ include "fluid.namespace" . }}
+  namespace: fluid-system
 {{- end }}

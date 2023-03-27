@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: fluid-webhook
-  namespace: {{ include "fluid.namespace" . }}
+  namespace: fluid-system
   labels:
     control-plane: fluid-webhook
 spec:
@@ -29,6 +29,7 @@ spec:
           - --development=false
           - --full-go-profile=false
           - --pprof-addr=:6060
+          - --enable-leader-election
         env:
           - name: MY_POD_NAMESPACE
             valueFrom:

@@ -292,34 +292,6 @@ spec:
                       type: string
                   type: object
                 type: array
-              sharedEncryptOptions:
-                description: SharedEncryptOptions is the encryptOption to all mount
-                items:
-                  properties:
-                    name:
-                      description: The name of encryptOption
-                      type: string
-                    valueFrom:
-                      description: The valueFrom of encryptOption
-                      properties:
-                        secretKeyRef:
-                          description: The encryptInfo obtained from secret
-                          properties:
-                            key:
-                              description: The required key in the secret
-                              type: string
-                            name:
-                              description: The name of required secret
-                              type: string
-                          type: object
-                      type: object
-                  type: object
-                type: array
-              sharedOptions:
-                additionalProperties:
-                  type: string
-                description: SharedOptions is the options to all mount
-                type: object
               tolerations:
                 description: If specified, the pod's tolerations.
                 items:
@@ -405,19 +377,13 @@ spec:
               dataBackupRef:
                 description: DataBackupRef specifies the running Backup job that targets
                   this Dataset. This is mainly used as a lock to prevent concurrent
-                  DataBackup jobs. Deprecated, use OperationRef instead
+                  DataBackup jobs.
                 type: string
               dataLoadRef:
                 description: DataLoadRef specifies the running DataLoad job that targets
                   this Dataset. This is mainly used as a lock to prevent concurrent
-                  DataLoad jobs. Deprecated, use OperationRef instead
+                  DataLoad jobs.
                 type: string
-              datasetRef:
-                description: DatasetRef specifies the datasets namespaced name mounting
-                  this Dataset.
-                items:
-                  type: string
-                type: array
               fileNum:
                 description: FileNum represents the file numbers of the dataset
                 type: string
@@ -487,13 +453,6 @@ spec:
                       type: boolean
                   type: object
                 type: array
-              operationRef:
-                additionalProperties:
-                  type: string
-                description: OperationRef specifies the Operation that targets this
-                  Dataset. This is mainly used as a lock to prevent concurrent same
-                  Operation jobs.
-                type: object
               phase:
                 description: 'Dataset Phase. One of the four phases: `Pending`, `Bound`,
                   `NotBound` and `Failed`'

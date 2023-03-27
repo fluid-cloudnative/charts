@@ -5,96 +5,21 @@ metadata:
   name: goosefsruntime-controller
 rules:
   - apiGroups:
-    - ""
+      - ""
     resources:
-    - namespaces
+      - persistentvolumeclaims
+      - persistentvolumes
+      - services
+      - endpoints
+      - configmaps
+      - events
+      - namespaces
+      - pods
+      - pods/exec
+      - secrets
+      - nodes
     verbs:
-    - get
-    - list
-    - watch
-  - apiGroups:
-    - ""
-    resources:
-    - configmaps
-    verbs:
-    - get
-    - list
-    - watch
-    - create
-    - update
-    - delete
-  - apiGroups:
-    - ""
-    resources:
-    - persistentvolumeclaims
-    verbs:
-    - get
-    - list
-    - watch
-    - create
-    - update
-    - delete
-  - apiGroups:
-    - ""
-    resources:
-    - persistentvolumes
-    verbs:
-    - get
-    - list
-    - watch
-    - create
-    - delete
-  - apiGroups:
-    - ""
-    resources:
-    - pods
-    verbs:
-    - get
-    - list
-    - watch
-  - apiGroups:
-    - ""
-    resources:
-    - pods/exec
-    verbs:
-    - create
-  - apiGroups:
-    - ""
-    resources:
-    - nodes
-    verbs:
-    - get
-    - list
-    - watch
-    - patch
-  - apiGroups:
-    - ""
-    resources:
-    - events
-    verbs:
-    - create
-    - patch
-  - apiGroups:
-    - ""
-    resources:
-    - secrets
-    verbs:
-    - list
-    - watch
-    - get
-    - create
-    - delete
-    - update
-  - apiGroups:
-    - ""
-    resources:
-    - services
-    verbs:
-    - create
-    - delete
-    - list
-    - watch
-    - get 
+      - '*'
   - apiGroups:
       - data.fluid.io
     resources:
@@ -133,10 +58,10 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: goosefsruntime-controller
-    namespace: {{ include "fluid.namespace" . }}
+    namespace: fluid-system
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: goosefsruntime-controller
-  namespace: {{ include "fluid.namespace" . }}
+  namespace: fluid-system

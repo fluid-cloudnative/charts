@@ -26,10 +26,10 @@ spec:
     - jsonPath: .status.phase
       name: Phase
       type: string
-    - jsonPath: .status.infos.BackupLocationPath
+    - jsonPath: .status.backupLocation.path
       name: Path
       type: string
-    - jsonPath: .status.infos.BackupLocationNodeName
+    - jsonPath: .status.backupLocation.nodeName
       name: NodeName
       type: string
     - jsonPath: .status.duration
@@ -90,10 +90,23 @@ spec:
                 type: object
             type: object
           status:
-            description: OperationStatus defines the observed state of operation
+            description: DataBackupStatus defines the observed state of DataBackup
             properties:
+              backupLocation:
+                description: BackupLocation tell user the location to save data of
+                  the DataBackup
+                properties:
+                  nodeName:
+                    description: NodeName describes the nodeName of backup if Path
+                      is in the form of local://subpath
+                    type: string
+                  path:
+                    description: Path describes the path of backup, in the form of
+                      local:///absolutePath or pvc://<pvcName>/subpath
+                    type: string
+                type: object
               conditions:
-                description: Conditions consists of transition information on operation's
+                description: Conditions consists of transition information on DataBackup's
                   Phase
                 items:
                   description: Condition explains the transitions on phase
@@ -128,15 +141,10 @@ spec:
                   type: object
                 type: array
               duration:
-                description: Duration tell user how much time was spent to operation
+                description: Duration tell user how much time was spent to backup
                 type: string
-              infos:
-                additionalProperties:
-                  type: string
-                description: Infos operation customized name-value
-                type: object
               phase:
-                description: Phase describes current phase of operation
+                description: Phase describes current phase of DataBackup
                 type: string
             required:
             - conditions

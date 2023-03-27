@@ -4,10 +4,7 @@
 
 workdir: /tmp
 crdUpgrade:
-  image: fluidcloudnative/fluid-crd-upgrader:v0.9.0-ac1fb47
-
-##  if unspecified, will use built-in variable `.Release.Namespace`.
-namespace: fluid-system
+  image: fluidcloudnative/fluid-crd-upgrader:v0.8.5-00f609e
 
 image:
   imagePullSecrets: []
@@ -15,19 +12,19 @@ image:
 dataset:
   replicas: 1
   controller:
-    image: fluidcloudnative/dataset-controller:v0.9.0-ac1fb47
+    image: fluidcloudnative/dataset-controller:v0.8.5-00f609e
 
 csi:
   featureGates: "FuseRecovery=false"
   config:
     hostNetwork: false
   registrar:
-    image: fluidcloudnative/csi-node-driver-registrar:v2.3.0
+    image: registry.aliyuncs.com/acs/csi-node-driver-registrar:v2.3.0-038aeb6-aliyun
   plugins:
-    image: fluidcloudnative/fluid-csi:v0.9.0-ac1fb47
+    image: fluidcloudnative/fluid-csi:v0.8.5-00f609e
   kubelet:
     rootDir: /var/lib/kubelet
-  pruneFs: fuse.alluxio-fuse,fuse.jindofs-fuse,fuse.juicefs,fuse.goosefs-fuse,ossfs,alifuse.aliyun-alinas-eac
+  pruneFs: fuse.alluxio-fuse,fuse.jindofs-fuse,fuse.juicefs,fuse.goosefs-fuse,ossfs
 
 runtime:
   criticalFusePod: true
@@ -40,13 +37,15 @@ runtime:
     portAllocatePolicy: random
     enabled: false
     init:
-      image: fluidcloudnative/init-users:v0.9.0-ac1fb47
+      image: fluidcloudnative/init-users:v0.8.5-00f609e
     controller:
-      image: fluidcloudnative/alluxioruntime-controller:v0.9.0-ac1fb47
+      image: fluidcloudnative/alluxioruntime-controller:v0.8.5-00f609e
     runtime:
-      image: alluxio/alluxio-dev:2.9.0
+      # image: fluidcloudnative/alluxio:release-2.7.3-SNAPSHOT-a7154f1
+      image: fluidcloudnative/alluxio:release-2.8.1-SNAPSHOT-0433ade
     fuse:
-      image: alluxio/alluxio-dev:2.9.0
+      # image: fluidcloudnative/alluxio-fuse:release-2.7.3-SNAPSHOT-a7154f1
+      image: fluidcloudnative/alluxio-fuse:release-2.8.1-SNAPSHOT-0433ade
   jindo:
     replicas: 1
     runtimeWorkers: 3
@@ -56,15 +55,15 @@ runtime:
     engine: jindofsx
     queryUfsTotal: true
     smartdata:
-      image: registry.cn-shanghai.aliyuncs.com/jindofs/smartdata:4.5.2
+      image: registry.cn-shanghai.aliyuncs.com/jindofs/smartdata:4.5.1
     fuse:
-      image: registry.cn-shanghai.aliyuncs.com/jindofs/jindo-fuse:4.5.2
+      image: registry.cn-shanghai.aliyuncs.com/jindofs/jindo-fuse:4.5.1
     controller:
-      image: fluidcloudnative/jindoruntime-controller:v0.9.0-ac1fb47
+      image: fluidcloudnative/jindoruntime-controller:v0.8.5-00f609e
     init:
       portCheck:
         enabled: false
-      image: fluidcloudnative/init-users:v0.9.0-ac1fb47
+      image: fluidcloudnative/init-users:v0.8.5-00f609e
   goosefs:
     replicas: 1
     runtimeWorkers: 3
@@ -72,9 +71,9 @@ runtime:
     portAllocatePolicy: random
     enabled: false
     init:
-      image: fluidcloudnative/init-users:v0.9.0-ac1fb47
+      image: fluidcloudnative/init-users:v0.8.5-00f609e
     controller:
-      image: fluidcloudnative/goosefsruntime-controller:v0.9.0-ac1fb47
+      image: fluidcloudnative/goosefsruntime-controller:v0.8.5-00f609e
     runtime:
       image: ccr.ccs.tencentyun.com/qcloud/goosefs:v1.2.0
     fuse:
@@ -83,38 +82,17 @@ runtime:
     replicas: 1
     enabled: false
     controller:
-      image: fluidcloudnative/juicefsruntime-controller:v0.9.0-ac1fb47
+      image: fluidcloudnative/juicefsruntime-controller:v0.8.5-00f609e
     fuse:
       image: juicedata/juicefs-fuse:v1.0.0-4.8.0
-  thin:
-    replicas: 1
-    enabled: false
-    controller:
-      image: fluidcloudnative/thinruntime-controller:v0.9.0-ac1fb47
-  eac:
-    replicas: 1
-    enabled: false
-    controller:
-      image: fluidcloudnative/eacruntime-controller:v0.9.0-ac1fb47
-      imagePullPolicy: Always
-    init:
-      image: registry.cn-zhangjiakou.aliyuncs.com/nascache/init-alifuse:v0.1.0-196d2b1
-    master:
-      image: registry.cn-zhangjiakou.aliyuncs.com/nascache/eac-master:v0.1.0-196d2b1
-    worker:
-      image: registry.cn-zhangjiakou.aliyuncs.com/nascache/eac-worker:v0.1.0-196d2b1
-    fuse:
-      image: registry.cn-zhangjiakou.aliyuncs.com/nascache/eac-fuse:v0.1.0-196d2b1
 
 webhook:
   enabled: true
-  image: fluidcloudnative/fluid-webhook:v0.9.0-ac1fb47
+  image: fluidcloudnative/fluid-webhook:v0.8.5-00f609e
   replicas: 1
-  timeoutSeconds: 15
-  reinvocationPolicy: Never
 
 fluidapp:
   enabled: true
   replicas: 1
   controller:
-    image: fluidcloudnative/application-controller:v0.9.0-ac1fb47
+    image: fluidcloudnative/application-controller:v0.8.5-00f609e
