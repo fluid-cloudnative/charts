@@ -2,7 +2,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: juicefsruntime-controller
+  name: thinruntime-controller
 rules:
   - apiGroups:
     - ""
@@ -22,6 +22,7 @@ rules:
     - watch
     - create
     - update
+    - patch
     - delete
   - apiGroups:
     - ""
@@ -33,6 +34,7 @@ rules:
     - watch
     - create
     - update
+    - patch
     - delete
   - apiGroups:
     - ""
@@ -51,7 +53,6 @@ rules:
     verbs:
     - get
     - list
-    - create
     - watch
   - apiGroups:
     - ""
@@ -59,8 +60,6 @@ rules:
     - pods/exec
     verbs:
     - create
-    - get
-    - list
   - apiGroups:
     - ""
     resources:
@@ -82,11 +81,11 @@ rules:
     resources:
     - secrets
     verbs:
+    - create
+    - delete
     - list
     - watch
     - get
-    - create
-    - delete
     - update
   - apiGroups:
     - ""
@@ -97,13 +96,20 @@ rules:
     - delete
     - list
     - watch
-    - get 
+    - get
   - apiGroups:
       - data.fluid.io
     resources:
+      - alluxioruntimes
+      - jindoruntimes
       - juicefsruntimes
+      - goosefsruntimes
+      - efcruntimes
+      - thinruntimes
+      - thinruntimeprofiles
       - datasets
-      - juicefsruntimes/status
+      - thinruntimes/status
+      - thinruntimeprofiles/status
       - datasets/status
     verbs:
       - '*'
@@ -119,8 +125,8 @@ rules:
   - apiGroups:
       - rbac.authorization.k8s.io
     resources:
-      - roles
-      - rolebindings
+      - clusterroles
+      - clusterrolebindings
     verbs:
       - create
       - list
@@ -145,18 +151,18 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: juicefsruntime-clusterrolebinding
+  name: thinruntime-clusterrolebinding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: juicefsruntime-controller
+  name: thinruntime-controller
 subjects:
   - kind: ServiceAccount
-    name: juicefsruntime-controller
+    name: thinruntime-controller
     namespace: {{ include "fluid.namespace" . }}
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: juicefsruntime-controller
+  name: thinruntime-controller
   namespace: {{ include "fluid.namespace" . }}

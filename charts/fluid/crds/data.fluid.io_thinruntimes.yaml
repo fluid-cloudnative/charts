@@ -5,65 +5,20 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.8.0
   creationTimestamp: null
-  name: alluxioruntimes.data.fluid.io
+  name: thinruntimes.data.fluid.io
 spec:
   group: data.fluid.io
   names:
-    categories:
-    - fluid
-    kind: AlluxioRuntime
-    listKind: AlluxioRuntimeList
-    plural: alluxioruntimes
-    shortNames:
-    - alluxio
-    singular: alluxioruntime
+    kind: ThinRuntime
+    listKind: ThinRuntimeList
+    plural: thinruntimes
+    singular: thinruntime
   scope: Namespaced
   versions:
-  - additionalPrinterColumns:
-    - jsonPath: .status.masterNumberReady
-      name: Ready Masters
-      priority: 10
-      type: integer
-    - jsonPath: .status.desiredMasterNumberScheduled
-      name: Desired Masters
-      priority: 10
-      type: integer
-    - jsonPath: .status.masterPhase
-      name: Master Phase
-      type: string
-    - jsonPath: .status.workerNumberReady
-      name: Ready Workers
-      priority: 10
-      type: integer
-    - jsonPath: .status.desiredWorkerNumberScheduled
-      name: Desired Workers
-      priority: 10
-      type: integer
-    - jsonPath: .status.workerPhase
-      name: Worker Phase
-      type: string
-    - jsonPath: .status.fuseNumberReady
-      name: Ready Fuses
-      priority: 10
-      type: integer
-    - jsonPath: .status.desiredFuseNumberScheduled
-      name: Desired Fuses
-      priority: 10
-      type: integer
-    - jsonPath: .status.fusePhase
-      name: Fuse Phase
-      type: string
-    - jsonPath: .status.apiGateway.endpoint
-      name: API Gateway
-      priority: 10
-      type: string
-    - jsonPath: .metadata.creationTimestamp
-      name: Age
-      type: date
-    name: v1alpha1
+  - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: AlluxioRuntime is the Schema for the alluxioruntimes API
+        description: ThinRuntime is the Schema for the thinruntimes API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -78,216 +33,301 @@ spec:
           metadata:
             type: object
           spec:
-            description: AlluxioRuntimeSpec defines the desired state of AlluxioRuntime
+            description: ThinRuntimeSpec defines the desired state of ThinRuntime
             properties:
-              alluxioVersion:
-                description: The version information that instructs fluid to orchestrate
-                  a particular version of Alluxio.
-                properties:
-                  image:
-                    description: Image (e.g. alluxio/alluxio)
-                    type: string
-                  imagePullPolicy:
-                    description: 'One of the three policies: `Always`, `IfNotPresent`,
-                      `Never`'
-                    type: string
-                  imageTag:
-                    description: Image tag (e.g. 2.3.0-SNAPSHOT)
-                    type: string
-                type: object
-              apiGateway:
-                description: The component spec of Alluxio API Gateway
-                properties:
-                  enabled:
-                    description: Enabled or Disabled for the components. For now,
-                      only  API Gateway is enabled or disabled.
-                    type: boolean
-                  env:
-                    additionalProperties:
-                      type: string
-                    description: Environment variables that will be used by Alluxio
-                      component. <br>
-                    type: object
-                  jvmOptions:
-                    description: Options for JVM
-                    items:
-                      type: string
-                    type: array
-                  networkMode:
-                    description: Whether to use hostnetwork or not
-                    enum:
-                    - HostNetwork
-                    - ""
-                    - ContainerNetwork
-                    type: string
-                  nodeSelector:
-                    additionalProperties:
-                      type: string
-                    description: NodeSelector is a selector which must be true for
-                      the master to fit on a node
-                    type: object
-                  podMetadata:
-                    description: PodMetadata defines labels and annotations that will
-                      be propagated to Alluxio's pods
-                    properties:
-                      annotations:
-                        additionalProperties:
-                          type: string
-                        description: Annotations are annotations of pod specification
-                        type: object
-                      labels:
-                        additionalProperties:
-                          type: string
-                        description: Labels are labels of pod specification
-                        type: object
-                    type: object
-                  ports:
-                    additionalProperties:
-                      type: integer
-                    description: 'Ports used by Alluxio(e.g. rpc: 19998 for master)'
-                    type: object
-                  properties:
-                    additionalProperties:
-                      type: string
-                    description: Configurable properties for the Alluxio component.
-                      <br> Refer to <a href="https://docs.alluxio.io/os/user/stable/en/reference/Properties-List.html">Alluxio
-                      Configuration Properties</a> for more info
-                    type: object
-                  replicas:
-                    description: Replicas is the desired number of replicas of the
-                      given template. If unspecified, defaults to 1. replicas is the
-                      min replicas of dataset in the cluster
-                    format: int32
-                    minimum: 1
-                    type: integer
-                  resources:
-                    description: Resources that will be requested by the Alluxio component.
-                      <br> <br> Resources are not allowed for ephemeral containers.
-                      Ephemeral containers use spare resources already allocated to
-                      the pod.
-                    properties:
-                      limits:
-                        additionalProperties:
-                          anyOf:
-                          - type: integer
-                          - type: string
-                          pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
-                          x-kubernetes-int-or-string: true
-                        description: 'Limits describes the maximum amount of compute
-                          resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/'
-                        type: object
-                      requests:
-                        additionalProperties:
-                          anyOf:
-                          - type: integer
-                          - type: string
-                          pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
-                          x-kubernetes-int-or-string: true
-                        description: 'Requests describes the minimum amount of compute
-                          resources required. If Requests is omitted for a container,
-                          it defaults to Limits if that is explicitly specified, otherwise
-                          to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/'
-                        type: object
-                    type: object
-                  volumeMounts:
-                    description: VolumeMounts specifies the volumes listed in ".spec.volumes"
-                      to mount into the alluxio runtime component's filesystem.
-                    items:
-                      description: VolumeMount describes a mounting of a Volume within
-                        a container.
-                      properties:
-                        mountPath:
-                          description: Path within the container at which the volume
-                            should be mounted.  Must not contain ':'.
-                          type: string
-                        mountPropagation:
-                          description: mountPropagation determines how mounts are
-                            propagated from the host to container and the other way
-                            around. When not set, MountPropagationNone is used. This
-                            field is beta in 1.10.
-                          type: string
-                        name:
-                          description: This must match the Name of a Volume.
-                          type: string
-                        readOnly:
-                          description: Mounted read-only if true, read-write otherwise
-                            (false or unspecified). Defaults to false.
-                          type: boolean
-                        subPath:
-                          description: Path within the volume from which the container's
-                            volume should be mounted. Defaults to "" (volume's root).
-                          type: string
-                        subPathExpr:
-                          description: Expanded path within the volume from which
-                            the container's volume should be mounted. Behaves similarly
-                            to SubPath but environment variable references $(VAR_NAME)
-                            are expanded using the container's environment. Defaults
-                            to "" (volume's root). SubPathExpr and SubPath are mutually
-                            exclusive.
-                          type: string
-                      required:
-                      - mountPath
-                      - name
-                      type: object
-                    type: array
-                type: object
-              data:
-                description: Management strategies for the dataset to which the runtime
-                  is bound
-                properties:
-                  pin:
-                    description: Pin the dataset or not. Refer to <a href="https://docs.alluxio.io/os/user/stable/en/operation/User-CLI.html#pin">Alluxio
-                      User-CLI pin</a>
-                    type: boolean
-                  replicas:
-                    description: The copies of the dataset
-                    format: int32
-                    type: integer
-                type: object
               disablePrometheus:
-                description: Disable monitoring for Alluxio Runtime Prometheus is
-                  enabled by default
+                description: Disable monitoring for Runtime Prometheus is enabled
+                  by default
                 type: boolean
               fuse:
-                description: The component spec of Alluxio Fuse
+                description: The component spec of thinRuntime
                 properties:
                   args:
-                    description: Arguments that will be passed to Alluxio Fuse
+                    description: Arguments that will be passed to thinRuntime Fuse
                     items:
                       type: string
                     type: array
                   cleanPolicy:
-                    description: 'CleanPolicy decides when to clean Alluxio Fuse pods.
-                      Currently Fluid supports two policies: OnDemand and OnRuntimeDeleted
+                    description: 'CleanPolicy decides when to clean thinRuntime Fuse
+                      pods. Currently Fluid supports two policies: OnDemand and OnRuntimeDeleted
                       OnDemand cleans fuse pod once the fuse pod on some node is not
                       needed OnRuntimeDeleted cleans fuse pod only when the cache
-                      runtime is deleted Defaults to OnRuntimeDeleted'
+                      runtime is deleted Defaults to OnDemand'
                     type: string
-                  env:
-                    additionalProperties:
+                  command:
+                    description: Command that will be passed to thinRuntime Fuse
+                    items:
                       type: string
-                    description: Environment variables that will be used by Alluxio
+                    type: array
+                  env:
+                    description: Environment variables that will be used by thinRuntime
                       Fuse
-                    type: object
-                  global:
-                    description: If the fuse client should be deployed in global mode,
-                      otherwise the affinity should be considered
-                    type: boolean
+                    items:
+                      description: EnvVar represents an environment variable present
+                        in a Container.
+                      properties:
+                        name:
+                          description: Name of the environment variable. Must be a
+                            C_IDENTIFIER.
+                          type: string
+                        value:
+                          description: 'Variable references $(VAR_NAME) are expanded
+                            using the previously defined environment variables in
+                            the container and any service environment variables. If
+                            a variable cannot be resolved, the reference in the input
+                            string will be unchanged. Double $$ are reduced to a single
+                            $, which allows for escaping the $(VAR_NAME) syntax: i.e.
+                            "$$(VAR_NAME)" will produce the string literal "$(VAR_NAME)".
+                            Escaped references will never be expanded, regardless
+                            of whether the variable exists or not. Defaults to "".'
+                          type: string
+                        valueFrom:
+                          description: Source for the environment variable's value.
+                            Cannot be used if value is not empty.
+                          properties:
+                            configMapKeyRef:
+                              description: Selects a key of a ConfigMap.
+                              properties:
+                                key:
+                                  description: The key to select.
+                                  type: string
+                                name:
+                                  description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    TODO: Add other useful fields. apiVersion, kind,
+                                    uid?'
+                                  type: string
+                                optional:
+                                  description: Specify whether the ConfigMap or its
+                                    key must be defined
+                                  type: boolean
+                              required:
+                              - key
+                              type: object
+                            fieldRef:
+                              description: 'Selects a field of the pod: supports metadata.name,
+                                metadata.namespace, `metadata.labels[''<KEY>'']`,
+                                `metadata.annotations[''<KEY>'']`, spec.nodeName,
+                                spec.serviceAccountName, status.hostIP, status.podIP,
+                                status.podIPs.'
+                              properties:
+                                apiVersion:
+                                  description: Version of the schema the FieldPath
+                                    is written in terms of, defaults to "v1".
+                                  type: string
+                                fieldPath:
+                                  description: Path of the field to select in the
+                                    specified API version.
+                                  type: string
+                              required:
+                              - fieldPath
+                              type: object
+                            resourceFieldRef:
+                              description: 'Selects a resource of the container: only
+                                resources limits and requests (limits.cpu, limits.memory,
+                                limits.ephemeral-storage, requests.cpu, requests.memory
+                                and requests.ephemeral-storage) are currently supported.'
+                              properties:
+                                containerName:
+                                  description: 'Container name: required for volumes,
+                                    optional for env vars'
+                                  type: string
+                                divisor:
+                                  anyOf:
+                                  - type: integer
+                                  - type: string
+                                  description: Specifies the output format of the
+                                    exposed resources, defaults to "1"
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                                resource:
+                                  description: 'Required: resource to select'
+                                  type: string
+                              required:
+                              - resource
+                              type: object
+                            secretKeyRef:
+                              description: Selects a key of a secret in the pod's
+                                namespace
+                              properties:
+                                key:
+                                  description: The key of the secret to select from.  Must
+                                    be a valid secret key.
+                                  type: string
+                                name:
+                                  description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    TODO: Add other useful fields. apiVersion, kind,
+                                    uid?'
+                                  type: string
+                                optional:
+                                  description: Specify whether the Secret or its key
+                                    must be defined
+                                  type: boolean
+                              required:
+                              - key
+                              type: object
+                          type: object
+                      required:
+                      - name
+                      type: object
+                    type: array
                   image:
-                    description: Image for Alluxio Fuse(e.g. alluxio/alluxio-fuse)
+                    description: Image for thinRuntime fuse
                     type: string
                   imagePullPolicy:
                     description: 'One of the three policies: `Always`, `IfNotPresent`,
                       `Never`'
                     type: string
                   imageTag:
-                    description: Image Tag for Alluxio Fuse(e.g. 2.3.0-SNAPSHOT)
+                    description: Image for thinRuntime fuse
                     type: string
-                  jvmOptions:
-                    description: Options for JVM
-                    items:
-                      type: string
-                    type: array
+                  livenessProbe:
+                    description: livenessProbe of thin fuse pod
+                    properties:
+                      exec:
+                        description: Exec specifies the action to take.
+                        properties:
+                          command:
+                            description: Command is the command line to execute inside
+                              the container, the working directory for the command  is
+                              root ('/') in the container's filesystem. The command
+                              is simply exec'd, it is not run inside a shell, so traditional
+                              shell instructions ('|', etc) won't work. To use a shell,
+                              you need to explicitly call out to that shell. Exit
+                              status of 0 is treated as live/healthy and non-zero
+                              is unhealthy.
+                            items:
+                              type: string
+                            type: array
+                        type: object
+                      failureThreshold:
+                        description: Minimum consecutive failures for the probe to
+                          be considered failed after having succeeded. Defaults to
+                          3. Minimum value is 1.
+                        format: int32
+                        type: integer
+                      grpc:
+                        description: GRPC specifies an action involving a GRPC port.
+                          This is an alpha field and requires enabling GRPCContainerProbe
+                          feature gate.
+                        properties:
+                          port:
+                            description: Port number of the gRPC service. Number must
+                              be in the range 1 to 65535.
+                            format: int32
+                            type: integer
+                          service:
+                            description: "Service is the name of the service to place
+                              in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+                              \n If this is not specified, the default behavior is
+                              defined by gRPC."
+                            type: string
+                        required:
+                        - port
+                        type: object
+                      httpGet:
+                        description: HTTPGet specifies the http request to perform.
+                        properties:
+                          host:
+                            description: Host name to connect to, defaults to the
+                              pod IP. You probably want to set "Host" in httpHeaders
+                              instead.
+                            type: string
+                          httpHeaders:
+                            description: Custom headers to set in the request. HTTP
+                              allows repeated headers.
+                            items:
+                              description: HTTPHeader describes a custom header to
+                                be used in HTTP probes
+                              properties:
+                                name:
+                                  description: The header field name
+                                  type: string
+                                value:
+                                  description: The header field value
+                                  type: string
+                              required:
+                              - name
+                              - value
+                              type: object
+                            type: array
+                          path:
+                            description: Path to access on the HTTP server.
+                            type: string
+                          port:
+                            anyOf:
+                            - type: integer
+                            - type: string
+                            description: Name or number of the port to access on the
+                              container. Number must be in the range 1 to 65535. Name
+                              must be an IANA_SVC_NAME.
+                            x-kubernetes-int-or-string: true
+                          scheme:
+                            description: Scheme to use for connecting to the host.
+                              Defaults to HTTP.
+                            type: string
+                        required:
+                        - port
+                        type: object
+                      initialDelaySeconds:
+                        description: 'Number of seconds after the container has started
+                          before liveness probes are initiated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes'
+                        format: int32
+                        type: integer
+                      periodSeconds:
+                        description: How often (in seconds) to perform the probe.
+                          Default to 10 seconds. Minimum value is 1.
+                        format: int32
+                        type: integer
+                      successThreshold:
+                        description: Minimum consecutive successes for the probe to
+                          be considered successful after having failed. Defaults to
+                          1. Must be 1 for liveness and startup. Minimum value is
+                          1.
+                        format: int32
+                        type: integer
+                      tcpSocket:
+                        description: TCPSocket specifies an action involving a TCP
+                          port.
+                        properties:
+                          host:
+                            description: 'Optional: Host name to connect to, defaults
+                              to the pod IP.'
+                            type: string
+                          port:
+                            anyOf:
+                            - type: integer
+                            - type: string
+                            description: Number or name of the port to access on the
+                              container. Number must be in the range 1 to 65535. Name
+                              must be an IANA_SVC_NAME.
+                            x-kubernetes-int-or-string: true
+                        required:
+                        - port
+                        type: object
+                      terminationGracePeriodSeconds:
+                        description: Optional duration in seconds the pod needs to
+                          terminate gracefully upon probe failure. The grace period
+                          is the duration in seconds after the processes running in
+                          the pod are sent a termination signal and the time when
+                          the processes are forcibly halted with a kill signal. Set
+                          this value longer than the expected cleanup time for your
+                          process. If this value is nil, the pod's terminationGracePeriodSeconds
+                          will be used. Otherwise, this value overrides the value
+                          provided by the pod spec. Value must be non-negative integer.
+                          The value zero indicates stop immediately via the kill signal
+                          (no opportunity to shut down). This is a beta field and
+                          requires enabling ProbeTerminationGracePeriod feature gate.
+                          Minimum value is 1. spec.terminationGracePeriodSeconds is
+                          used if unset.
+                        format: int64
+                        type: integer
+                      timeoutSeconds:
+                        description: 'Number of seconds after which the probe times
+                          out. Defaults to 1 second. Minimum value is 1. More info:
+                          https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes'
+                        format: int32
+                        type: integer
+                    type: object
                   networkMode:
                     description: Whether to use hostnetwork or not
                     enum:
@@ -302,548 +342,199 @@ spec:
                       the fuse client to fit on a node, this option only effect when
                       global is enabled
                     type: object
-                  podMetadata:
-                    description: PodMetadata defines labels and annotations that will
-                      be propagated to Alluxio's fuse pods
-                    properties:
-                      annotations:
-                        additionalProperties:
-                          type: string
-                        description: Annotations are annotations of pod specification
-                        type: object
-                      labels:
-                        additionalProperties:
-                          type: string
-                        description: Labels are labels of pod specification
-                        type: object
-                    type: object
-                  properties:
+                  options:
                     additionalProperties:
                       type: string
-                    description: Configurable properties for Alluxio System. <br>
-                      Refer to <a href="https://docs.alluxio.io/os/user/stable/en/reference/Properties-List.html">Alluxio
-                      Configuration Properties</a> for more info
-                    type: object
-                  resources:
-                    description: Resources that will be requested by Alluxio Fuse.
-                      <br> <br> Resources are not allowed for ephemeral containers.
-                      Ephemeral containers use spare resources already allocated to
-                      the pod.
-                    properties:
-                      limits:
-                        additionalProperties:
-                          anyOf:
-                          - type: integer
-                          - type: string
-                          pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
-                          x-kubernetes-int-or-string: true
-                        description: 'Limits describes the maximum amount of compute
-                          resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/'
-                        type: object
-                      requests:
-                        additionalProperties:
-                          anyOf:
-                          - type: integer
-                          - type: string
-                          pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
-                          x-kubernetes-int-or-string: true
-                        description: 'Requests describes the minimum amount of compute
-                          resources required. If Requests is omitted for a container,
-                          it defaults to Limits if that is explicitly specified, otherwise
-                          to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/'
-                        type: object
-                    type: object
-                  volumeMounts:
-                    description: VolumeMounts specifies the volumes listed in ".spec.volumes"
-                      to mount into the alluxio runtime component's filesystem.
-                    items:
-                      description: VolumeMount describes a mounting of a Volume within
-                        a container.
-                      properties:
-                        mountPath:
-                          description: Path within the container at which the volume
-                            should be mounted.  Must not contain ':'.
-                          type: string
-                        mountPropagation:
-                          description: mountPropagation determines how mounts are
-                            propagated from the host to container and the other way
-                            around. When not set, MountPropagationNone is used. This
-                            field is beta in 1.10.
-                          type: string
-                        name:
-                          description: This must match the Name of a Volume.
-                          type: string
-                        readOnly:
-                          description: Mounted read-only if true, read-write otherwise
-                            (false or unspecified). Defaults to false.
-                          type: boolean
-                        subPath:
-                          description: Path within the volume from which the container's
-                            volume should be mounted. Defaults to "" (volume's root).
-                          type: string
-                        subPathExpr:
-                          description: Expanded path within the volume from which
-                            the container's volume should be mounted. Behaves similarly
-                            to SubPath but environment variable references $(VAR_NAME)
-                            are expanded using the container's environment. Defaults
-                            to "" (volume's root). SubPathExpr and SubPath are mutually
-                            exclusive.
-                          type: string
-                      required:
-                      - mountPath
-                      - name
-                      type: object
-                    type: array
-                type: object
-              hadoopConfig:
-                description: Name of the configMap used to support HDFS configurations
-                  when using HDFS as Alluxio's UFS. The configMap must be in the same
-                  namespace with the AlluxioRuntime. The configMap should contain
-                  user-specific HDFS conf files in it. For now, only "hdfs-site.xml"
-                  and "core-site.xml" are supported. It must take the filename of
-                  the conf file as the key and content of the file as the value.
-                type: string
-              initUsers:
-                description: The spec of init users
-                properties:
-                  env:
-                    additionalProperties:
-                      type: string
-                    description: Environment variables that will be used by initialize
-                      the users for runtime
-                    type: object
-                  image:
-                    description: Image for initialize the users for runtime(e.g. alluxio/alluxio-User
-                      init)
-                    type: string
-                  imagePullPolicy:
-                    description: 'One of the three policies: `Always`, `IfNotPresent`,
-                      `Never`'
-                    type: string
-                  imageTag:
-                    description: Image Tag for initialize the users for runtime(e.g.
-                      2.3.0-SNAPSHOT)
-                    type: string
-                  resources:
-                    description: Resources that will be requested by initialize the
-                      users for runtime. <br> <br> Resources are not allowed for ephemeral
-                      containers. Ephemeral containers use spare resources already
-                      allocated to the pod.
-                    properties:
-                      limits:
-                        additionalProperties:
-                          anyOf:
-                          - type: integer
-                          - type: string
-                          pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
-                          x-kubernetes-int-or-string: true
-                        description: 'Limits describes the maximum amount of compute
-                          resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/'
-                        type: object
-                      requests:
-                        additionalProperties:
-                          anyOf:
-                          - type: integer
-                          - type: string
-                          pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
-                          x-kubernetes-int-or-string: true
-                        description: 'Requests describes the minimum amount of compute
-                          resources required. If Requests is omitted for a container,
-                          it defaults to Limits if that is explicitly specified, otherwise
-                          to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/'
-                        type: object
-                    type: object
-                type: object
-              jobMaster:
-                description: The component spec of Alluxio job master
-                properties:
-                  enabled:
-                    description: Enabled or Disabled for the components. For now,
-                      only  API Gateway is enabled or disabled.
-                    type: boolean
-                  env:
-                    additionalProperties:
-                      type: string
-                    description: Environment variables that will be used by Alluxio
-                      component. <br>
-                    type: object
-                  jvmOptions:
-                    description: Options for JVM
-                    items:
-                      type: string
-                    type: array
-                  networkMode:
-                    description: Whether to use hostnetwork or not
-                    enum:
-                    - HostNetwork
-                    - ""
-                    - ContainerNetwork
-                    type: string
-                  nodeSelector:
-                    additionalProperties:
-                      type: string
-                    description: NodeSelector is a selector which must be true for
-                      the master to fit on a node
-                    type: object
-                  podMetadata:
-                    description: PodMetadata defines labels and annotations that will
-                      be propagated to Alluxio's pods
-                    properties:
-                      annotations:
-                        additionalProperties:
-                          type: string
-                        description: Annotations are annotations of pod specification
-                        type: object
-                      labels:
-                        additionalProperties:
-                          type: string
-                        description: Labels are labels of pod specification
-                        type: object
+                    description: Options configurable options of FUSE client, performance
+                      parameters usually. will be merged with Dataset.spec.mounts.options
+                      into fuse pod.
                     type: object
                   ports:
-                    additionalProperties:
-                      type: integer
-                    description: 'Ports used by Alluxio(e.g. rpc: 19998 for master)'
-                    type: object
-                  properties:
-                    additionalProperties:
-                      type: string
-                    description: Configurable properties for the Alluxio component.
-                      <br> Refer to <a href="https://docs.alluxio.io/os/user/stable/en/reference/Properties-List.html">Alluxio
-                      Configuration Properties</a> for more info
-                    type: object
-                  replicas:
-                    description: Replicas is the desired number of replicas of the
-                      given template. If unspecified, defaults to 1. replicas is the
-                      min replicas of dataset in the cluster
-                    format: int32
-                    minimum: 1
-                    type: integer
-                  resources:
-                    description: Resources that will be requested by the Alluxio component.
-                      <br> <br> Resources are not allowed for ephemeral containers.
-                      Ephemeral containers use spare resources already allocated to
-                      the pod.
-                    properties:
-                      limits:
-                        additionalProperties:
-                          anyOf:
-                          - type: integer
-                          - type: string
-                          pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
-                          x-kubernetes-int-or-string: true
-                        description: 'Limits describes the maximum amount of compute
-                          resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/'
-                        type: object
-                      requests:
-                        additionalProperties:
-                          anyOf:
-                          - type: integer
-                          - type: string
-                          pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
-                          x-kubernetes-int-or-string: true
-                        description: 'Requests describes the minimum amount of compute
-                          resources required. If Requests is omitted for a container,
-                          it defaults to Limits if that is explicitly specified, otherwise
-                          to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/'
-                        type: object
-                    type: object
-                  volumeMounts:
-                    description: VolumeMounts specifies the volumes listed in ".spec.volumes"
-                      to mount into the alluxio runtime component's filesystem.
+                    description: Ports used thinRuntime
                     items:
-                      description: VolumeMount describes a mounting of a Volume within
-                        a container.
+                      description: ContainerPort represents a network port in a single
+                        container.
                       properties:
-                        mountPath:
-                          description: Path within the container at which the volume
-                            should be mounted.  Must not contain ':'.
+                        containerPort:
+                          description: Number of port to expose on the pod's IP address.
+                            This must be a valid port number, 0 < x < 65536.
+                          format: int32
+                          type: integer
+                        hostIP:
+                          description: What host IP to bind the external port to.
                           type: string
-                        mountPropagation:
-                          description: mountPropagation determines how mounts are
-                            propagated from the host to container and the other way
-                            around. When not set, MountPropagationNone is used. This
-                            field is beta in 1.10.
-                          type: string
+                        hostPort:
+                          description: Number of port to expose on the host. If specified,
+                            this must be a valid port number, 0 < x < 65536. If HostNetwork
+                            is specified, this must match ContainerPort. Most containers
+                            do not need this.
+                          format: int32
+                          type: integer
                         name:
-                          description: This must match the Name of a Volume.
+                          description: If specified, this must be an IANA_SVC_NAME
+                            and unique within the pod. Each named port in a pod must
+                            have a unique name. Name for the port that can be referred
+                            to by services.
                           type: string
-                        readOnly:
-                          description: Mounted read-only if true, read-write otherwise
-                            (false or unspecified). Defaults to false.
-                          type: boolean
-                        subPath:
-                          description: Path within the volume from which the container's
-                            volume should be mounted. Defaults to "" (volume's root).
-                          type: string
-                        subPathExpr:
-                          description: Expanded path within the volume from which
-                            the container's volume should be mounted. Behaves similarly
-                            to SubPath but environment variable references $(VAR_NAME)
-                            are expanded using the container's environment. Defaults
-                            to "" (volume's root). SubPathExpr and SubPath are mutually
-                            exclusive.
+                        protocol:
+                          default: TCP
+                          description: Protocol for port. Must be UDP, TCP, or SCTP.
+                            Defaults to "TCP".
                           type: string
                       required:
-                      - mountPath
-                      - name
+                      - containerPort
                       type: object
                     type: array
-                type: object
-              jobWorker:
-                description: The component spec of Alluxio job Worker
-                properties:
-                  enabled:
-                    description: Enabled or Disabled for the components. For now,
-                      only  API Gateway is enabled or disabled.
-                    type: boolean
-                  env:
-                    additionalProperties:
-                      type: string
-                    description: Environment variables that will be used by Alluxio
-                      component. <br>
-                    type: object
-                  jvmOptions:
-                    description: Options for JVM
-                    items:
-                      type: string
-                    type: array
-                  networkMode:
-                    description: Whether to use hostnetwork or not
-                    enum:
-                    - HostNetwork
-                    - ""
-                    - ContainerNetwork
-                    type: string
-                  nodeSelector:
-                    additionalProperties:
-                      type: string
-                    description: NodeSelector is a selector which must be true for
-                      the master to fit on a node
-                    type: object
-                  podMetadata:
-                    description: PodMetadata defines labels and annotations that will
-                      be propagated to Alluxio's pods
+                  readinessProbe:
+                    description: readinessProbe of thin fuse pod
                     properties:
-                      annotations:
-                        additionalProperties:
-                          type: string
-                        description: Annotations are annotations of pod specification
+                      exec:
+                        description: Exec specifies the action to take.
+                        properties:
+                          command:
+                            description: Command is the command line to execute inside
+                              the container, the working directory for the command  is
+                              root ('/') in the container's filesystem. The command
+                              is simply exec'd, it is not run inside a shell, so traditional
+                              shell instructions ('|', etc) won't work. To use a shell,
+                              you need to explicitly call out to that shell. Exit
+                              status of 0 is treated as live/healthy and non-zero
+                              is unhealthy.
+                            items:
+                              type: string
+                            type: array
                         type: object
-                      labels:
-                        additionalProperties:
-                          type: string
-                        description: Labels are labels of pod specification
-                        type: object
-                    type: object
-                  ports:
-                    additionalProperties:
-                      type: integer
-                    description: 'Ports used by Alluxio(e.g. rpc: 19998 for master)'
-                    type: object
-                  properties:
-                    additionalProperties:
-                      type: string
-                    description: Configurable properties for the Alluxio component.
-                      <br> Refer to <a href="https://docs.alluxio.io/os/user/stable/en/reference/Properties-List.html">Alluxio
-                      Configuration Properties</a> for more info
-                    type: object
-                  replicas:
-                    description: Replicas is the desired number of replicas of the
-                      given template. If unspecified, defaults to 1. replicas is the
-                      min replicas of dataset in the cluster
-                    format: int32
-                    minimum: 1
-                    type: integer
-                  resources:
-                    description: Resources that will be requested by the Alluxio component.
-                      <br> <br> Resources are not allowed for ephemeral containers.
-                      Ephemeral containers use spare resources already allocated to
-                      the pod.
-                    properties:
-                      limits:
-                        additionalProperties:
-                          anyOf:
-                          - type: integer
-                          - type: string
-                          pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
-                          x-kubernetes-int-or-string: true
-                        description: 'Limits describes the maximum amount of compute
-                          resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/'
-                        type: object
-                      requests:
-                        additionalProperties:
-                          anyOf:
-                          - type: integer
-                          - type: string
-                          pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
-                          x-kubernetes-int-or-string: true
-                        description: 'Requests describes the minimum amount of compute
-                          resources required. If Requests is omitted for a container,
-                          it defaults to Limits if that is explicitly specified, otherwise
-                          to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/'
-                        type: object
-                    type: object
-                  volumeMounts:
-                    description: VolumeMounts specifies the volumes listed in ".spec.volumes"
-                      to mount into the alluxio runtime component's filesystem.
-                    items:
-                      description: VolumeMount describes a mounting of a Volume within
-                        a container.
-                      properties:
-                        mountPath:
-                          description: Path within the container at which the volume
-                            should be mounted.  Must not contain ':'.
-                          type: string
-                        mountPropagation:
-                          description: mountPropagation determines how mounts are
-                            propagated from the host to container and the other way
-                            around. When not set, MountPropagationNone is used. This
-                            field is beta in 1.10.
-                          type: string
-                        name:
-                          description: This must match the Name of a Volume.
-                          type: string
-                        readOnly:
-                          description: Mounted read-only if true, read-write otherwise
-                            (false or unspecified). Defaults to false.
-                          type: boolean
-                        subPath:
-                          description: Path within the volume from which the container's
-                            volume should be mounted. Defaults to "" (volume's root).
-                          type: string
-                        subPathExpr:
-                          description: Expanded path within the volume from which
-                            the container's volume should be mounted. Behaves similarly
-                            to SubPath but environment variable references $(VAR_NAME)
-                            are expanded using the container's environment. Defaults
-                            to "" (volume's root). SubPathExpr and SubPath are mutually
-                            exclusive.
-                          type: string
-                      required:
-                      - mountPath
-                      - name
-                      type: object
-                    type: array
-                type: object
-              jvmOptions:
-                description: Options for JVM
-                items:
-                  type: string
-                type: array
-              management:
-                description: RuntimeManagement defines policies when managing the
-                  runtime
-                properties:
-                  cleanCachePolicy:
-                    description: CleanCachePolicy defines the policy of cleaning cache
-                      when shutting down the runtime
-                    properties:
-                      gracePeriodSeconds:
-                        default: 60
-                        description: Optional duration in seconds the cache needs
-                          to clean gracefully. May be decreased in delete runtime
-                          request. Value must be non-negative integer. The value zero
-                          indicates clean immediately via the timeout command (no
-                          opportunity to shut down). If this value is nil, the default
-                          grace period will be used instead. The grace period is the
-                          duration in seconds after the processes running in the pod
-                          are sent a termination signal and the time when the processes
-                          are forcibly halted with timeout command. Set this value
-                          longer than the expected cleanup time for your process.
+                      failureThreshold:
+                        description: Minimum consecutive failures for the probe to
+                          be considered failed after having succeeded. Defaults to
+                          3. Minimum value is 1.
                         format: int32
                         type: integer
-                      maxRetryAttempts:
-                        default: 3
-                        description: Optional max retry Attempts when cleanCache function
-                          returns an error after execution, runtime attempts to run
-                          it three more times by default. With Maximum Retry Attempts,
-                          you can customize the maximum number of retries. This gives
-                          you the option to continue processing retries.
+                      grpc:
+                        description: GRPC specifies an action involving a GRPC port.
+                          This is an alpha field and requires enabling GRPCContainerProbe
+                          feature gate.
+                        properties:
+                          port:
+                            description: Port number of the gRPC service. Number must
+                              be in the range 1 to 65535.
+                            format: int32
+                            type: integer
+                          service:
+                            description: "Service is the name of the service to place
+                              in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+                              \n If this is not specified, the default behavior is
+                              defined by gRPC."
+                            type: string
+                        required:
+                        - port
+                        type: object
+                      httpGet:
+                        description: HTTPGet specifies the http request to perform.
+                        properties:
+                          host:
+                            description: Host name to connect to, defaults to the
+                              pod IP. You probably want to set "Host" in httpHeaders
+                              instead.
+                            type: string
+                          httpHeaders:
+                            description: Custom headers to set in the request. HTTP
+                              allows repeated headers.
+                            items:
+                              description: HTTPHeader describes a custom header to
+                                be used in HTTP probes
+                              properties:
+                                name:
+                                  description: The header field name
+                                  type: string
+                                value:
+                                  description: The header field value
+                                  type: string
+                              required:
+                              - name
+                              - value
+                              type: object
+                            type: array
+                          path:
+                            description: Path to access on the HTTP server.
+                            type: string
+                          port:
+                            anyOf:
+                            - type: integer
+                            - type: string
+                            description: Name or number of the port to access on the
+                              container. Number must be in the range 1 to 65535. Name
+                              must be an IANA_SVC_NAME.
+                            x-kubernetes-int-or-string: true
+                          scheme:
+                            description: Scheme to use for connecting to the host.
+                              Defaults to HTTP.
+                            type: string
+                        required:
+                        - port
+                        type: object
+                      initialDelaySeconds:
+                        description: 'Number of seconds after the container has started
+                          before liveness probes are initiated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes'
+                        format: int32
+                        type: integer
+                      periodSeconds:
+                        description: How often (in seconds) to perform the probe.
+                          Default to 10 seconds. Minimum value is 1.
+                        format: int32
+                        type: integer
+                      successThreshold:
+                        description: Minimum consecutive successes for the probe to
+                          be considered successful after having failed. Defaults to
+                          1. Must be 1 for liveness and startup. Minimum value is
+                          1.
+                        format: int32
+                        type: integer
+                      tcpSocket:
+                        description: TCPSocket specifies an action involving a TCP
+                          port.
+                        properties:
+                          host:
+                            description: 'Optional: Host name to connect to, defaults
+                              to the pod IP.'
+                            type: string
+                          port:
+                            anyOf:
+                            - type: integer
+                            - type: string
+                            description: Number or name of the port to access on the
+                              container. Number must be in the range 1 to 65535. Name
+                              must be an IANA_SVC_NAME.
+                            x-kubernetes-int-or-string: true
+                        required:
+                        - port
+                        type: object
+                      terminationGracePeriodSeconds:
+                        description: Optional duration in seconds the pod needs to
+                          terminate gracefully upon probe failure. The grace period
+                          is the duration in seconds after the processes running in
+                          the pod are sent a termination signal and the time when
+                          the processes are forcibly halted with a kill signal. Set
+                          this value longer than the expected cleanup time for your
+                          process. If this value is nil, the pod's terminationGracePeriodSeconds
+                          will be used. Otherwise, this value overrides the value
+                          provided by the pod spec. Value must be non-negative integer.
+                          The value zero indicates stop immediately via the kill signal
+                          (no opportunity to shut down). This is a beta field and
+                          requires enabling ProbeTerminationGracePeriod feature gate.
+                          Minimum value is 1. spec.terminationGracePeriodSeconds is
+                          used if unset.
+                        format: int64
+                        type: integer
+                      timeoutSeconds:
+                        description: 'Number of seconds after which the probe times
+                          out. Defaults to 1 second. Minimum value is 1. More info:
+                          https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes'
                         format: int32
                         type: integer
                     type: object
-                  metadataSyncPolicy:
-                    description: MetadataSyncPolicy defines the policy of syncing
-                      metadata when setting up the runtime. If not set,
-                    properties:
-                      autoSync:
-                        default: true
-                        description: AutoSync enables automatic metadata sync when
-                          setting up a runtime. If not set, it defaults to true.
-                        type: boolean
-                    type: object
-                type: object
-              master:
-                description: The component spec of Alluxio master
-                properties:
-                  enabled:
-                    description: Enabled or Disabled for the components. For now,
-                      only  API Gateway is enabled or disabled.
-                    type: boolean
-                  env:
-                    additionalProperties:
-                      type: string
-                    description: Environment variables that will be used by Alluxio
-                      component. <br>
-                    type: object
-                  jvmOptions:
-                    description: Options for JVM
-                    items:
-                      type: string
-                    type: array
-                  networkMode:
-                    description: Whether to use hostnetwork or not
-                    enum:
-                    - HostNetwork
-                    - ""
-                    - ContainerNetwork
-                    type: string
-                  nodeSelector:
-                    additionalProperties:
-                      type: string
-                    description: NodeSelector is a selector which must be true for
-                      the master to fit on a node
-                    type: object
-                  podMetadata:
-                    description: PodMetadata defines labels and annotations that will
-                      be propagated to Alluxio's pods
-                    properties:
-                      annotations:
-                        additionalProperties:
-                          type: string
-                        description: Annotations are annotations of pod specification
-                        type: object
-                      labels:
-                        additionalProperties:
-                          type: string
-                        description: Labels are labels of pod specification
-                        type: object
-                    type: object
-                  ports:
-                    additionalProperties:
-                      type: integer
-                    description: 'Ports used by Alluxio(e.g. rpc: 19998 for master)'
-                    type: object
-                  properties:
-                    additionalProperties:
-                      type: string
-                    description: Configurable properties for the Alluxio component.
-                      <br> Refer to <a href="https://docs.alluxio.io/os/user/stable/en/reference/Properties-List.html">Alluxio
-                      Configuration Properties</a> for more info
-                    type: object
-                  replicas:
-                    description: Replicas is the desired number of replicas of the
-                      given template. If unspecified, defaults to 1. replicas is the
-                      min replicas of dataset in the cluster
-                    format: int32
-                    minimum: 1
-                    type: integer
                   resources:
-                    description: Resources that will be requested by the Alluxio component.
-                      <br> <br> Resources are not allowed for ephemeral containers.
-                      Ephemeral containers use spare resources already allocated to
-                      the pod.
+                    description: Resources that will be requested by thinRuntime Fuse.
                     properties:
                       limits:
                         additionalProperties:
@@ -870,7 +561,7 @@ spec:
                     type: object
                   volumeMounts:
                     description: VolumeMounts specifies the volumes listed in ".spec.volumes"
-                      to mount into the alluxio runtime component's filesystem.
+                      to mount into the thinruntime component's filesystem.
                     items:
                       description: VolumeMount describes a mounting of a Volume within
                         a container.
@@ -941,34 +632,16 @@ spec:
                       type: object
                   type: object
                 type: array
-              podMetadata:
-                description: PodMetadata defines labels and annotations that will
-                  be propagated to Alluxio's pods
-                properties:
-                  annotations:
-                    additionalProperties:
-                      type: string
-                    description: Annotations are annotations of pod specification
-                    type: object
-                  labels:
-                    additionalProperties:
-                      type: string
-                    description: Labels are labels of pod specification
-                    type: object
-                type: object
-              properties:
-                additionalProperties:
-                  type: string
-                description: Configurable properties for Alluxio system. <br> Refer
-                  to <a href="https://docs.alluxio.io/os/user/stable/en/reference/Properties-List.html">Alluxio
-                  Configuration Properties</a> for more info
-                type: object
+              profileName:
+                description: The specific runtime profile name, empty value is used
+                  for handling datasets which mount another dataset
+                type: string
               replicas:
                 description: The replicas of the worker, need to be specified
                 format: int32
                 type: integer
               runAs:
-                description: Manage the user to run Alluxio Runtime
+                description: Manage the user to run Runtime
                 properties:
                   gid:
                     description: The gid to run the alluxio runtime
@@ -991,7 +664,7 @@ spec:
                 - user
                 type: object
               tieredstore:
-                description: Tiered storage used by Alluxio
+                description: Tiered storage
                 properties:
                   levels:
                     description: configurations for multiple tiers
@@ -2657,7 +2330,7 @@ spec:
                 type: object
               volumes:
                 description: Volumes is the list of Kubernetes volumes that can be
-                  mounted by the alluxio runtime components and/or fuses.
+                  mounted by runtime components and/or fuses.
                 items:
                   description: Volume represents a named volume in a pod that may
                     be accessed by any container in the pod.
@@ -4131,23 +3804,280 @@ spec:
                   type: object
                 type: array
               worker:
-                description: The component spec of Alluxio worker
+                description: The component spec of worker
                 properties:
                   enabled:
-                    description: Enabled or Disabled for the components. For now,
-                      only  API Gateway is enabled or disabled.
+                    description: Enabled or Disabled for the components.
                     type: boolean
                   env:
-                    additionalProperties:
-                      type: string
-                    description: Environment variables that will be used by Alluxio
-                      component. <br>
-                    type: object
-                  jvmOptions:
-                    description: Options for JVM
+                    description: Environment variables that will be used by thinRuntime
+                      component.
                     items:
-                      type: string
+                      description: EnvVar represents an environment variable present
+                        in a Container.
+                      properties:
+                        name:
+                          description: Name of the environment variable. Must be a
+                            C_IDENTIFIER.
+                          type: string
+                        value:
+                          description: 'Variable references $(VAR_NAME) are expanded
+                            using the previously defined environment variables in
+                            the container and any service environment variables. If
+                            a variable cannot be resolved, the reference in the input
+                            string will be unchanged. Double $$ are reduced to a single
+                            $, which allows for escaping the $(VAR_NAME) syntax: i.e.
+                            "$$(VAR_NAME)" will produce the string literal "$(VAR_NAME)".
+                            Escaped references will never be expanded, regardless
+                            of whether the variable exists or not. Defaults to "".'
+                          type: string
+                        valueFrom:
+                          description: Source for the environment variable's value.
+                            Cannot be used if value is not empty.
+                          properties:
+                            configMapKeyRef:
+                              description: Selects a key of a ConfigMap.
+                              properties:
+                                key:
+                                  description: The key to select.
+                                  type: string
+                                name:
+                                  description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    TODO: Add other useful fields. apiVersion, kind,
+                                    uid?'
+                                  type: string
+                                optional:
+                                  description: Specify whether the ConfigMap or its
+                                    key must be defined
+                                  type: boolean
+                              required:
+                              - key
+                              type: object
+                            fieldRef:
+                              description: 'Selects a field of the pod: supports metadata.name,
+                                metadata.namespace, `metadata.labels[''<KEY>'']`,
+                                `metadata.annotations[''<KEY>'']`, spec.nodeName,
+                                spec.serviceAccountName, status.hostIP, status.podIP,
+                                status.podIPs.'
+                              properties:
+                                apiVersion:
+                                  description: Version of the schema the FieldPath
+                                    is written in terms of, defaults to "v1".
+                                  type: string
+                                fieldPath:
+                                  description: Path of the field to select in the
+                                    specified API version.
+                                  type: string
+                              required:
+                              - fieldPath
+                              type: object
+                            resourceFieldRef:
+                              description: 'Selects a resource of the container: only
+                                resources limits and requests (limits.cpu, limits.memory,
+                                limits.ephemeral-storage, requests.cpu, requests.memory
+                                and requests.ephemeral-storage) are currently supported.'
+                              properties:
+                                containerName:
+                                  description: 'Container name: required for volumes,
+                                    optional for env vars'
+                                  type: string
+                                divisor:
+                                  anyOf:
+                                  - type: integer
+                                  - type: string
+                                  description: Specifies the output format of the
+                                    exposed resources, defaults to "1"
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                                resource:
+                                  description: 'Required: resource to select'
+                                  type: string
+                              required:
+                              - resource
+                              type: object
+                            secretKeyRef:
+                              description: Selects a key of a secret in the pod's
+                                namespace
+                              properties:
+                                key:
+                                  description: The key of the secret to select from.  Must
+                                    be a valid secret key.
+                                  type: string
+                                name:
+                                  description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                    TODO: Add other useful fields. apiVersion, kind,
+                                    uid?'
+                                  type: string
+                                optional:
+                                  description: Specify whether the Secret or its key
+                                    must be defined
+                                  type: boolean
+                              required:
+                              - key
+                              type: object
+                          type: object
+                      required:
+                      - name
+                      type: object
                     type: array
+                  image:
+                    description: Image for thinRuntime fuse
+                    type: string
+                  imagePullPolicy:
+                    description: 'One of the three policies: `Always`, `IfNotPresent`,
+                      `Never`'
+                    type: string
+                  imageTag:
+                    description: Image for thinRuntime fuse
+                    type: string
+                  livenessProbe:
+                    description: livenessProbe of thin fuse pod
+                    properties:
+                      exec:
+                        description: Exec specifies the action to take.
+                        properties:
+                          command:
+                            description: Command is the command line to execute inside
+                              the container, the working directory for the command  is
+                              root ('/') in the container's filesystem. The command
+                              is simply exec'd, it is not run inside a shell, so traditional
+                              shell instructions ('|', etc) won't work. To use a shell,
+                              you need to explicitly call out to that shell. Exit
+                              status of 0 is treated as live/healthy and non-zero
+                              is unhealthy.
+                            items:
+                              type: string
+                            type: array
+                        type: object
+                      failureThreshold:
+                        description: Minimum consecutive failures for the probe to
+                          be considered failed after having succeeded. Defaults to
+                          3. Minimum value is 1.
+                        format: int32
+                        type: integer
+                      grpc:
+                        description: GRPC specifies an action involving a GRPC port.
+                          This is an alpha field and requires enabling GRPCContainerProbe
+                          feature gate.
+                        properties:
+                          port:
+                            description: Port number of the gRPC service. Number must
+                              be in the range 1 to 65535.
+                            format: int32
+                            type: integer
+                          service:
+                            description: "Service is the name of the service to place
+                              in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+                              \n If this is not specified, the default behavior is
+                              defined by gRPC."
+                            type: string
+                        required:
+                        - port
+                        type: object
+                      httpGet:
+                        description: HTTPGet specifies the http request to perform.
+                        properties:
+                          host:
+                            description: Host name to connect to, defaults to the
+                              pod IP. You probably want to set "Host" in httpHeaders
+                              instead.
+                            type: string
+                          httpHeaders:
+                            description: Custom headers to set in the request. HTTP
+                              allows repeated headers.
+                            items:
+                              description: HTTPHeader describes a custom header to
+                                be used in HTTP probes
+                              properties:
+                                name:
+                                  description: The header field name
+                                  type: string
+                                value:
+                                  description: The header field value
+                                  type: string
+                              required:
+                              - name
+                              - value
+                              type: object
+                            type: array
+                          path:
+                            description: Path to access on the HTTP server.
+                            type: string
+                          port:
+                            anyOf:
+                            - type: integer
+                            - type: string
+                            description: Name or number of the port to access on the
+                              container. Number must be in the range 1 to 65535. Name
+                              must be an IANA_SVC_NAME.
+                            x-kubernetes-int-or-string: true
+                          scheme:
+                            description: Scheme to use for connecting to the host.
+                              Defaults to HTTP.
+                            type: string
+                        required:
+                        - port
+                        type: object
+                      initialDelaySeconds:
+                        description: 'Number of seconds after the container has started
+                          before liveness probes are initiated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes'
+                        format: int32
+                        type: integer
+                      periodSeconds:
+                        description: How often (in seconds) to perform the probe.
+                          Default to 10 seconds. Minimum value is 1.
+                        format: int32
+                        type: integer
+                      successThreshold:
+                        description: Minimum consecutive successes for the probe to
+                          be considered successful after having failed. Defaults to
+                          1. Must be 1 for liveness and startup. Minimum value is
+                          1.
+                        format: int32
+                        type: integer
+                      tcpSocket:
+                        description: TCPSocket specifies an action involving a TCP
+                          port.
+                        properties:
+                          host:
+                            description: 'Optional: Host name to connect to, defaults
+                              to the pod IP.'
+                            type: string
+                          port:
+                            anyOf:
+                            - type: integer
+                            - type: string
+                            description: Number or name of the port to access on the
+                              container. Number must be in the range 1 to 65535. Name
+                              must be an IANA_SVC_NAME.
+                            x-kubernetes-int-or-string: true
+                        required:
+                        - port
+                        type: object
+                      terminationGracePeriodSeconds:
+                        description: Optional duration in seconds the pod needs to
+                          terminate gracefully upon probe failure. The grace period
+                          is the duration in seconds after the processes running in
+                          the pod are sent a termination signal and the time when
+                          the processes are forcibly halted with a kill signal. Set
+                          this value longer than the expected cleanup time for your
+                          process. If this value is nil, the pod's terminationGracePeriodSeconds
+                          will be used. Otherwise, this value overrides the value
+                          provided by the pod spec. Value must be non-negative integer.
+                          The value zero indicates stop immediately via the kill signal
+                          (no opportunity to shut down). This is a beta field and
+                          requires enabling ProbeTerminationGracePeriod feature gate.
+                          Minimum value is 1. spec.terminationGracePeriodSeconds is
+                          used if unset.
+                        format: int64
+                        type: integer
+                      timeoutSeconds:
+                        description: 'Number of seconds after which the probe times
+                          out. Defaults to 1 second. Minimum value is 1. More info:
+                          https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes'
+                        format: int32
+                        type: integer
+                    type: object
                   networkMode:
                     description: Whether to use hostnetwork or not
                     enum:
@@ -4158,35 +4088,191 @@ spec:
                   nodeSelector:
                     additionalProperties:
                       type: string
-                    description: NodeSelector is a selector which must be true for
-                      the master to fit on a node
-                    type: object
-                  podMetadata:
-                    description: PodMetadata defines labels and annotations that will
-                      be propagated to Alluxio's pods
-                    properties:
-                      annotations:
-                        additionalProperties:
-                          type: string
-                        description: Annotations are annotations of pod specification
-                        type: object
-                      labels:
-                        additionalProperties:
-                          type: string
-                        description: Labels are labels of pod specification
-                        type: object
+                    description: NodeSelector is a selector
                     type: object
                   ports:
-                    additionalProperties:
-                      type: integer
-                    description: 'Ports used by Alluxio(e.g. rpc: 19998 for master)'
-                    type: object
-                  properties:
-                    additionalProperties:
-                      type: string
-                    description: Configurable properties for the Alluxio component.
-                      <br> Refer to <a href="https://docs.alluxio.io/os/user/stable/en/reference/Properties-List.html">Alluxio
-                      Configuration Properties</a> for more info
+                    description: Ports used thinRuntime
+                    items:
+                      description: ContainerPort represents a network port in a single
+                        container.
+                      properties:
+                        containerPort:
+                          description: Number of port to expose on the pod's IP address.
+                            This must be a valid port number, 0 < x < 65536.
+                          format: int32
+                          type: integer
+                        hostIP:
+                          description: What host IP to bind the external port to.
+                          type: string
+                        hostPort:
+                          description: Number of port to expose on the host. If specified,
+                            this must be a valid port number, 0 < x < 65536. If HostNetwork
+                            is specified, this must match ContainerPort. Most containers
+                            do not need this.
+                          format: int32
+                          type: integer
+                        name:
+                          description: If specified, this must be an IANA_SVC_NAME
+                            and unique within the pod. Each named port in a pod must
+                            have a unique name. Name for the port that can be referred
+                            to by services.
+                          type: string
+                        protocol:
+                          default: TCP
+                          description: Protocol for port. Must be UDP, TCP, or SCTP.
+                            Defaults to "TCP".
+                          type: string
+                      required:
+                      - containerPort
+                      type: object
+                    type: array
+                  readinessProbe:
+                    description: readinessProbe of thin fuse pod
+                    properties:
+                      exec:
+                        description: Exec specifies the action to take.
+                        properties:
+                          command:
+                            description: Command is the command line to execute inside
+                              the container, the working directory for the command  is
+                              root ('/') in the container's filesystem. The command
+                              is simply exec'd, it is not run inside a shell, so traditional
+                              shell instructions ('|', etc) won't work. To use a shell,
+                              you need to explicitly call out to that shell. Exit
+                              status of 0 is treated as live/healthy and non-zero
+                              is unhealthy.
+                            items:
+                              type: string
+                            type: array
+                        type: object
+                      failureThreshold:
+                        description: Minimum consecutive failures for the probe to
+                          be considered failed after having succeeded. Defaults to
+                          3. Minimum value is 1.
+                        format: int32
+                        type: integer
+                      grpc:
+                        description: GRPC specifies an action involving a GRPC port.
+                          This is an alpha field and requires enabling GRPCContainerProbe
+                          feature gate.
+                        properties:
+                          port:
+                            description: Port number of the gRPC service. Number must
+                              be in the range 1 to 65535.
+                            format: int32
+                            type: integer
+                          service:
+                            description: "Service is the name of the service to place
+                              in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+                              \n If this is not specified, the default behavior is
+                              defined by gRPC."
+                            type: string
+                        required:
+                        - port
+                        type: object
+                      httpGet:
+                        description: HTTPGet specifies the http request to perform.
+                        properties:
+                          host:
+                            description: Host name to connect to, defaults to the
+                              pod IP. You probably want to set "Host" in httpHeaders
+                              instead.
+                            type: string
+                          httpHeaders:
+                            description: Custom headers to set in the request. HTTP
+                              allows repeated headers.
+                            items:
+                              description: HTTPHeader describes a custom header to
+                                be used in HTTP probes
+                              properties:
+                                name:
+                                  description: The header field name
+                                  type: string
+                                value:
+                                  description: The header field value
+                                  type: string
+                              required:
+                              - name
+                              - value
+                              type: object
+                            type: array
+                          path:
+                            description: Path to access on the HTTP server.
+                            type: string
+                          port:
+                            anyOf:
+                            - type: integer
+                            - type: string
+                            description: Name or number of the port to access on the
+                              container. Number must be in the range 1 to 65535. Name
+                              must be an IANA_SVC_NAME.
+                            x-kubernetes-int-or-string: true
+                          scheme:
+                            description: Scheme to use for connecting to the host.
+                              Defaults to HTTP.
+                            type: string
+                        required:
+                        - port
+                        type: object
+                      initialDelaySeconds:
+                        description: 'Number of seconds after the container has started
+                          before liveness probes are initiated. More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes'
+                        format: int32
+                        type: integer
+                      periodSeconds:
+                        description: How often (in seconds) to perform the probe.
+                          Default to 10 seconds. Minimum value is 1.
+                        format: int32
+                        type: integer
+                      successThreshold:
+                        description: Minimum consecutive successes for the probe to
+                          be considered successful after having failed. Defaults to
+                          1. Must be 1 for liveness and startup. Minimum value is
+                          1.
+                        format: int32
+                        type: integer
+                      tcpSocket:
+                        description: TCPSocket specifies an action involving a TCP
+                          port.
+                        properties:
+                          host:
+                            description: 'Optional: Host name to connect to, defaults
+                              to the pod IP.'
+                            type: string
+                          port:
+                            anyOf:
+                            - type: integer
+                            - type: string
+                            description: Number or name of the port to access on the
+                              container. Number must be in the range 1 to 65535. Name
+                              must be an IANA_SVC_NAME.
+                            x-kubernetes-int-or-string: true
+                        required:
+                        - port
+                        type: object
+                      terminationGracePeriodSeconds:
+                        description: Optional duration in seconds the pod needs to
+                          terminate gracefully upon probe failure. The grace period
+                          is the duration in seconds after the processes running in
+                          the pod are sent a termination signal and the time when
+                          the processes are forcibly halted with a kill signal. Set
+                          this value longer than the expected cleanup time for your
+                          process. If this value is nil, the pod's terminationGracePeriodSeconds
+                          will be used. Otherwise, this value overrides the value
+                          provided by the pod spec. Value must be non-negative integer.
+                          The value zero indicates stop immediately via the kill signal
+                          (no opportunity to shut down). This is a beta field and
+                          requires enabling ProbeTerminationGracePeriod feature gate.
+                          Minimum value is 1. spec.terminationGracePeriodSeconds is
+                          used if unset.
+                        format: int64
+                        type: integer
+                      timeoutSeconds:
+                        description: 'Number of seconds after which the probe times
+                          out. Defaults to 1 second. Minimum value is 1. More info:
+                          https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes'
+                        format: int32
+                        type: integer
                     type: object
                   replicas:
                     description: Replicas is the desired number of replicas of the
@@ -4196,10 +4282,7 @@ spec:
                     minimum: 1
                     type: integer
                   resources:
-                    description: Resources that will be requested by the Alluxio component.
-                      <br> <br> Resources are not allowed for ephemeral containers.
-                      Ephemeral containers use spare resources already allocated to
-                      the pod.
+                    description: Resources that will be requested by thinRuntime component.
                     properties:
                       limits:
                         additionalProperties:
@@ -4226,7 +4309,7 @@ spec:
                     type: object
                   volumeMounts:
                     description: VolumeMounts specifies the volumes listed in ".spec.volumes"
-                      to mount into the alluxio runtime component's filesystem.
+                      to mount into runtime component's filesystem.
                     items:
                       description: VolumeMount describes a mounting of a Volume within
                         a container.
@@ -4502,10 +4585,6 @@ spec:
     served: true
     storage: true
     subresources:
-      scale:
-        labelSelectorPath: .status.selector
-        specReplicasPath: .spec.replicas
-        statusReplicasPath: .status.currentWorkerNumberScheduled
       status: {}
 status:
   acceptedNames:
