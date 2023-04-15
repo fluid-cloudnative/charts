@@ -2,7 +2,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: juicefsruntime-controller
+  name: efcruntime-controller
 rules:
   - apiGroups:
     - ""
@@ -12,6 +12,7 @@ rules:
     - get
     - list
     - watch
+    - create
   - apiGroups:
     - ""
     resources:
@@ -51,7 +52,6 @@ rules:
     verbs:
     - get
     - list
-    - create
     - watch
   - apiGroups:
     - ""
@@ -59,8 +59,6 @@ rules:
     - pods/exec
     verbs:
     - create
-    - get
-    - list
   - apiGroups:
     - ""
     resources:
@@ -101,31 +99,12 @@ rules:
   - apiGroups:
       - data.fluid.io
     resources:
-      - juicefsruntimes
+      - efcruntimes
       - datasets
-      - juicefsruntimes/status
+      - efcruntimes/status
       - datasets/status
     verbs:
       - '*'
-  - apiGroups:
-      - ""
-    resources:
-      - serviceaccounts
-    verbs:
-      - create
-      - list
-      - get
-      - delete
-  - apiGroups:
-      - rbac.authorization.k8s.io
-    resources:
-      - roles
-      - rolebindings
-    verbs:
-      - create
-      - list
-      - get
-      - delete
   - apiGroups:
       - apps
     resources:
@@ -145,18 +124,18 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: juicefsruntime-clusterrolebinding
+  name: efcruntime-clusterrolebinding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: juicefsruntime-controller
+  name: efcruntime-controller
 subjects:
   - kind: ServiceAccount
-    name: juicefsruntime-controller
+    name: efcruntime-controller
     namespace: {{ include "fluid.namespace" . }}
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: juicefsruntime-controller
+  name: efcruntime-controller
   namespace: {{ include "fluid.namespace" . }}

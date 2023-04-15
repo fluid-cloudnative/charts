@@ -5,21 +5,96 @@ metadata:
   name: jindoruntime-controller
 rules:
   - apiGroups:
-      - ""
+    - ""
     resources:
-      - persistentvolumeclaims
-      - persistentvolumes
-      - services
-      - endpoints
-      - configmaps
-      - events
-      - namespaces
-      - pods
-      - pods/exec
-      - secrets
-      - nodes
+    - namespaces
     verbs:
-      - '*'
+    - get
+    - list
+    - watch
+  - apiGroups:
+    - ""
+    resources:
+    - configmaps
+    verbs:
+    - get
+    - list
+    - watch
+    - create
+    - update
+    - delete
+  - apiGroups:
+    - ""
+    resources:
+    - persistentvolumeclaims
+    verbs:
+    - get
+    - list
+    - watch
+    - create
+    - update
+    - delete
+  - apiGroups:
+    - ""
+    resources:
+    - persistentvolumes
+    verbs:
+    - get
+    - list
+    - watch
+    - create
+    - delete
+  - apiGroups:
+    - ""
+    resources:
+    - pods
+    verbs:
+    - get
+    - list
+    - watch
+  - apiGroups:
+    - ""
+    resources:
+    - pods/exec
+    verbs:
+    - create
+  - apiGroups:
+    - ""
+    resources:
+    - nodes
+    verbs:
+    - get
+    - list
+    - watch
+    - patch
+  - apiGroups:
+    - ""
+    resources:
+    - events
+    verbs:
+    - create
+    - patch
+  - apiGroups:
+    - ""
+    resources:
+    - secrets
+    verbs:
+    - list
+    - watch
+    - get
+    - create
+    - delete
+    - update
+  - apiGroups:
+    - ""
+    resources:
+    - services
+    verbs:
+    - create
+    - delete
+    - list
+    - watch
+    - get 
   - apiGroups:
       - data.fluid.io
     resources:
@@ -37,13 +112,13 @@ rules:
       - daemonsets/status
       - statefulsets/status
     verbs:
-      - "*"
+      - '*'
   - apiGroups:
       - coordination.k8s.io
     resources:
       - leases
     verbs:
-      - "*"
+      - '*'
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -56,10 +131,10 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: jindoruntime-controller
-    namespace: fluid-system
+    namespace: {{ include "fluid.namespace" . }}
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: jindoruntime-controller
-  namespace: fluid-system
+  namespace: {{ include "fluid.namespace" . }}

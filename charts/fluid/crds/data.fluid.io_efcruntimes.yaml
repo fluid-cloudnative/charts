@@ -5,18 +5,18 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.8.0
   creationTimestamp: null
-  name: jindoruntimes.data.fluid.io
+  name: efcruntimes.data.fluid.io
 spec:
   group: data.fluid.io
   names:
     categories:
     - fluid
-    kind: JindoRuntime
-    listKind: JindoRuntimeList
-    plural: jindoruntimes
+    kind: EFCRuntime
+    listKind: EFCRuntimeList
+    plural: efcruntimes
     shortNames:
-    - jindo
-    singular: jindoruntime
+    - efc
+    singular: efcruntime
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
@@ -59,7 +59,7 @@ spec:
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: JindoRuntime is the Schema for the jindoruntimes API
+        description: EFCRuntime is the Schema for the efcruntimes API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -74,7 +74,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: JindoRuntimeSpec defines the desired state of JindoRuntime
+            description: EFCRuntimeSpec defines the desired state of EFCRuntime
             properties:
               cleanCachePolicy:
                 description: CleanCachePolicy defines cleanCache Policy
@@ -104,54 +104,22 @@ spec:
                     type: integer
                 type: object
               fuse:
-                description: The component spec of Jindo Fuse
+                description: The component spec of EFC Fuse
                 properties:
-                  args:
-                    description: Arguments that will be passed to Jindo Fuse
-                    items:
-                      type: string
-                    type: array
                   cleanPolicy:
-                    description: 'CleanPolicy decides when to clean JindoFS Fuse pods.
+                    description: 'CleanPolicy decides when to clean EFC Fuse pods.
                       Currently Fluid supports two policies: OnDemand and OnRuntimeDeleted
                       OnDemand cleans fuse pod once th fuse pod on some node is not
                       needed OnRuntimeDeleted cleans fuse pod only when the cache
                       runtime is deleted Defaults to OnRuntimeDeleted'
                     type: string
-                  disabled:
-                    description: If disable JindoFS fuse
-                    type: boolean
-                  env:
-                    additionalProperties:
-                      type: string
-                    description: Environment variables that will be used by Jindo
-                      Fuse
-                    type: object
-                  global:
-                    description: If the fuse client should be deployed in global mode,
-                      otherwise the affinity should be considered
-                    type: boolean
-                  image:
-                    description: Image for Jindo Fuse(e.g. jindo/jindo-fuse)
+                  networkMode:
+                    description: Whether to use hostnetwork or not
+                    enum:
+                    - HostNetwork
+                    - ""
+                    - ContainerNetwork
                     type: string
-                  imagePullPolicy:
-                    description: 'One of the three policies: `Always`, `IfNotPresent`,
-                      `Never`'
-                    type: string
-                  imageTag:
-                    description: Image Tag for Jindo Fuse(e.g. 2.3.0-SNAPSHOT)
-                    type: string
-                  labels:
-                    additionalProperties:
-                      type: string
-                    description: 'Labels will be added on all the JindoFS pods. DEPRECATED:
-                      this is a deprecated field. Please use PodMetadata.Labels instead.
-                      Note: this field is set to be exclusive with PodMetadata.Labels'
-                    type: object
-                  logConfig:
-                    additionalProperties:
-                      type: string
-                    type: object
                   nodeSelector:
                     additionalProperties:
                       type: string
@@ -161,7 +129,7 @@ spec:
                     type: object
                   podMetadata:
                     description: PodMetadata defines labels and annotations that will
-                      be propagated to Jindo's fuse pods
+                      be propagated to EFC's fuse pods
                     properties:
                       annotations:
                         additionalProperties:
@@ -177,10 +145,10 @@ spec:
                   properties:
                     additionalProperties:
                       type: string
-                    description: Configurable properties for Jindo System. <br>
+                    description: Configurable properties for EFC fuse
                     type: object
                   resources:
-                    description: Resources that will be requested by Jindo Fuse. <br>
+                    description: Resources that will be requested by EFC Fuse. <br>
                       <br> Resources are not allowed for ephemeral containers. Ephemeral
                       containers use spare resources already allocated to the pod.
                     properties:
@@ -207,110 +175,63 @@ spec:
                           to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/'
                         type: object
                     type: object
-                  tolerations:
-                    description: If specified, the pod's tolerations.
-                    items:
-                      description: The pod this Toleration is attached to tolerates
-                        any taint that matches the triple <key,value,effect> using
-                        the matching operator <operator>.
-                      properties:
-                        effect:
-                          description: Effect indicates the taint effect to match.
-                            Empty means match all taint effects. When specified, allowed
-                            values are NoSchedule, PreferNoSchedule and NoExecute.
-                          type: string
-                        key:
-                          description: Key is the taint key that the toleration applies
-                            to. Empty means match all taint keys. If the key is empty,
-                            operator must be Exists; this combination means to match
-                            all values and all keys.
-                          type: string
-                        operator:
-                          description: Operator represents a key's relationship to
-                            the value. Valid operators are Exists and Equal. Defaults
-                            to Equal. Exists is equivalent to wildcard for value,
-                            so that a pod can tolerate all taints of a particular
-                            category.
-                          type: string
-                        tolerationSeconds:
-                          description: TolerationSeconds represents the period of
-                            time the toleration (which must be of effect NoExecute,
-                            otherwise this field is ignored) tolerates the taint.
-                            By default, it is not set, which means tolerate the taint
-                            forever (do not evict). Zero and negative values will
-                            be treated as 0 (evict immediately) by the system.
-                          format: int64
-                          type: integer
-                        value:
-                          description: Value is the taint value the toleration matches
-                            to. If the operator is Exists, the value should be empty,
-                            otherwise just a regular string.
-                          type: string
-                      type: object
-                    type: array
+                  version:
+                    description: The version information that instructs fluid to orchestrate
+                      a particular version of EFC Fuse
+                    properties:
+                      image:
+                        description: Image (e.g. alluxio/alluxio)
+                        type: string
+                      imagePullPolicy:
+                        description: 'One of the three policies: `Always`, `IfNotPresent`,
+                          `Never`'
+                        type: string
+                      imageTag:
+                        description: Image tag (e.g. 2.3.0-SNAPSHOT)
+                        type: string
+                    type: object
                 type: object
-              hadoopConfig:
-                description: Name of the configMap used to support HDFS configurations
-                  when using HDFS as Jindo's UFS. The configMap must be in the same
-                  namespace with the JindoRuntime. The configMap should contain user-specific
-                  HDFS conf files in it. For now, only "hdfs-site.xml" and "core-site.xml"
-                  are supported. It must take the filename of the conf file as the
-                  key and content of the file as the value.
-                type: string
-              jindoVersion:
-                description: The version information that instructs fluid to orchestrate
-                  a particular version of Jindo.
+              initFuse:
+                description: The spec of init alifuse
                 properties:
-                  image:
-                    description: Image (e.g. alluxio/alluxio)
-                    type: string
-                  imagePullPolicy:
-                    description: 'One of the three policies: `Always`, `IfNotPresent`,
-                      `Never`'
-                    type: string
-                  imageTag:
-                    description: Image tag (e.g. 2.3.0-SNAPSHOT)
-                    type: string
-                type: object
-              labels:
-                additionalProperties:
-                  type: string
-                description: 'Labels will be added on all the JindoFS pods. DEPRECATED:
-                  this is a deprecated field. Please use PodMetadata.Labels instead.
-                  Note: this field is set to be exclusive with PodMetadata.Labels'
-                type: object
-              logConfig:
-                additionalProperties:
-                  type: string
+                  version:
+                    description: The version information that instructs fluid to orchestrate
+                      a particular version of Alifuse
+                    properties:
+                      image:
+                        description: Image (e.g. alluxio/alluxio)
+                        type: string
+                      imagePullPolicy:
+                        description: 'One of the three policies: `Always`, `IfNotPresent`,
+                          `Never`'
+                        type: string
+                      imageTag:
+                        description: Image tag (e.g. 2.3.0-SNAPSHOT)
+                        type: string
+                    type: object
                 type: object
               master:
-                description: The component spec of Jindo master
+                description: The component spec of EFC master
                 properties:
                   disabled:
-                    description: If disable JindoFS master or worker
+                    description: Enabled or Disabled for the components. Default enable.
                     type: boolean
-                  env:
-                    additionalProperties:
-                      type: string
-                    description: Environment variables that will be used by Jindo
-                      component. <br>
-                    type: object
-                  labels:
-                    additionalProperties:
-                      type: string
-                    description: 'Labels will be added on JindoFS Master or Worker
-                      pods. DEPRECATED: This is a deprecated field. Please use PodMetadata
-                      instead. Note: this field is set to be exclusive with PodMetadata.Labels'
-                    type: object
+                  networkMode:
+                    description: Whether to use host network or not.
+                    enum:
+                    - HostNetwork
+                    - ""
+                    - ContainerNetwork
+                    type: string
                   nodeSelector:
                     additionalProperties:
                       type: string
                     description: NodeSelector is a selector which must be true for
-                      the master to fit on a node
+                      the component to fit on a node.
                     type: object
                   podMetadata:
                     description: PodMetadata defines labels and annotations that will
-                      be propagated to Jindo's pods
+                      be propagated to EFC's master and worker pods
                     properties:
                       annotations:
                         additionalProperties:
@@ -326,12 +247,12 @@ spec:
                   ports:
                     additionalProperties:
                       type: integer
+                    description: 'Ports used by EFC(e.g. rpc: 19998 for master).'
                     type: object
                   properties:
                     additionalProperties:
                       type: string
-                    description: Configurable properties for the Jindo component.
-                      <br>
+                    description: Configurable properties for the EFC component.
                     type: object
                   replicas:
                     description: Replicas is the desired number of replicas of the
@@ -341,7 +262,7 @@ spec:
                     minimum: 1
                     type: integer
                   resources:
-                    description: Resources that will be requested by the Jindo component.
+                    description: Resources that will be requested by the EFC component.
                       <br> <br> Resources are not allowed for ephemeral containers.
                       Ephemeral containers use spare resources already allocated to
                       the pod.
@@ -369,47 +290,21 @@ spec:
                           to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/'
                         type: object
                     type: object
-                  tolerations:
-                    description: If specified, the pod's tolerations.
-                    items:
-                      description: The pod this Toleration is attached to tolerates
-                        any taint that matches the triple <key,value,effect> using
-                        the matching operator <operator>.
-                      properties:
-                        effect:
-                          description: Effect indicates the taint effect to match.
-                            Empty means match all taint effects. When specified, allowed
-                            values are NoSchedule, PreferNoSchedule and NoExecute.
-                          type: string
-                        key:
-                          description: Key is the taint key that the toleration applies
-                            to. Empty means match all taint keys. If the key is empty,
-                            operator must be Exists; this combination means to match
-                            all values and all keys.
-                          type: string
-                        operator:
-                          description: Operator represents a key's relationship to
-                            the value. Valid operators are Exists and Equal. Defaults
-                            to Equal. Exists is equivalent to wildcard for value,
-                            so that a pod can tolerate all taints of a particular
-                            category.
-                          type: string
-                        tolerationSeconds:
-                          description: TolerationSeconds represents the period of
-                            time the toleration (which must be of effect NoExecute,
-                            otherwise this field is ignored) tolerates the taint.
-                            By default, it is not set, which means tolerate the taint
-                            forever (do not evict). Zero and negative values will
-                            be treated as 0 (evict immediately) by the system.
-                          format: int64
-                          type: integer
-                        value:
-                          description: Value is the taint value the toleration matches
-                            to. If the operator is Exists, the value should be empty,
-                            otherwise just a regular string.
-                          type: string
-                      type: object
-                    type: array
+                  version:
+                    description: The version information that instructs fluid to orchestrate
+                      a particular version of EFC Comp
+                    properties:
+                      image:
+                        description: Image (e.g. alluxio/alluxio)
+                        type: string
+                      imagePullPolicy:
+                        description: 'One of the three policies: `Always`, `IfNotPresent`,
+                          `Never`'
+                        type: string
+                      imageTag:
+                        description: Image tag (e.g. 2.3.0-SNAPSHOT)
+                        type: string
+                    type: object
                 type: object
               metadataList:
                 description: MetadataList defines labels and annotations that will
@@ -442,16 +337,20 @@ spec:
                       type: object
                   type: object
                 type: array
-              networkmode:
-                description: Whether to use hostnetwork or not
-                enum:
-                - HostNetwork
-                - ""
-                - ContainerNetwork
-                type: string
+              osAdvise:
+                description: Operating system optimization for EFC
+                properties:
+                  enabled:
+                    description: Enable operating system optimization not enabled
+                      by default.
+                    type: boolean
+                  osVersion:
+                    description: Specific operating system version that can have optimization.
+                    type: string
+                type: object
               podMetadata:
                 description: PodMetadata defines labels and annotations that will
-                  be propagated to all Jindo's fuse pods
+                  be propagated to all EFC's pods
                 properties:
                   annotations:
                     additionalProperties:
@@ -464,42 +363,12 @@ spec:
                     description: Labels are labels of pod specification
                     type: object
                 type: object
-              properties:
-                additionalProperties:
-                  type: string
-                description: Configurable properties for Jindo system. <br>
-                type: object
               replicas:
                 description: The replicas of the worker, need to be specified
                 format: int32
                 type: integer
-              runAs:
-                description: Manage the user to run Jindo Runtime
-                properties:
-                  gid:
-                    description: The gid to run the alluxio runtime
-                    format: int64
-                    type: integer
-                  group:
-                    description: The group name to run the alluxio runtime
-                    type: string
-                  uid:
-                    description: The uid to run the alluxio runtime
-                    format: int64
-                    type: integer
-                  user:
-                    description: The user name to run the alluxio runtime
-                    type: string
-                required:
-                - gid
-                - group
-                - uid
-                - user
-                type: object
-              secret:
-                type: string
               tieredstore:
-                description: Tiered storage used by Jindo
+                description: Tiered storage used by EFC worker
                 properties:
                   levels:
                     description: configurations for multiple tiers
@@ -2163,36 +2032,28 @@ spec:
                       type: object
                     type: array
                 type: object
-              user:
-                type: string
               worker:
-                description: The component spec of Jindo worker
+                description: The component spec of EFC worker
                 properties:
                   disabled:
-                    description: If disable JindoFS master or worker
+                    description: Enabled or Disabled for the components. Default enable.
                     type: boolean
-                  env:
-                    additionalProperties:
-                      type: string
-                    description: Environment variables that will be used by Jindo
-                      component. <br>
-                    type: object
-                  labels:
-                    additionalProperties:
-                      type: string
-                    description: 'Labels will be added on JindoFS Master or Worker
-                      pods. DEPRECATED: This is a deprecated field. Please use PodMetadata
-                      instead. Note: this field is set to be exclusive with PodMetadata.Labels'
-                    type: object
+                  networkMode:
+                    description: Whether to use host network or not.
+                    enum:
+                    - HostNetwork
+                    - ""
+                    - ContainerNetwork
+                    type: string
                   nodeSelector:
                     additionalProperties:
                       type: string
                     description: NodeSelector is a selector which must be true for
-                      the master to fit on a node
+                      the component to fit on a node.
                     type: object
                   podMetadata:
                     description: PodMetadata defines labels and annotations that will
-                      be propagated to Jindo's pods
+                      be propagated to EFC's master and worker pods
                     properties:
                       annotations:
                         additionalProperties:
@@ -2208,12 +2069,12 @@ spec:
                   ports:
                     additionalProperties:
                       type: integer
+                    description: 'Ports used by EFC(e.g. rpc: 19998 for master).'
                     type: object
                   properties:
                     additionalProperties:
                       type: string
-                    description: Configurable properties for the Jindo component.
-                      <br>
+                    description: Configurable properties for the EFC component.
                     type: object
                   replicas:
                     description: Replicas is the desired number of replicas of the
@@ -2223,7 +2084,7 @@ spec:
                     minimum: 1
                     type: integer
                   resources:
-                    description: Resources that will be requested by the Jindo component.
+                    description: Resources that will be requested by the EFC component.
                       <br> <br> Resources are not allowed for ephemeral containers.
                       Ephemeral containers use spare resources already allocated to
                       the pod.
@@ -2251,47 +2112,21 @@ spec:
                           to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/'
                         type: object
                     type: object
-                  tolerations:
-                    description: If specified, the pod's tolerations.
-                    items:
-                      description: The pod this Toleration is attached to tolerates
-                        any taint that matches the triple <key,value,effect> using
-                        the matching operator <operator>.
-                      properties:
-                        effect:
-                          description: Effect indicates the taint effect to match.
-                            Empty means match all taint effects. When specified, allowed
-                            values are NoSchedule, PreferNoSchedule and NoExecute.
-                          type: string
-                        key:
-                          description: Key is the taint key that the toleration applies
-                            to. Empty means match all taint keys. If the key is empty,
-                            operator must be Exists; this combination means to match
-                            all values and all keys.
-                          type: string
-                        operator:
-                          description: Operator represents a key's relationship to
-                            the value. Valid operators are Exists and Equal. Defaults
-                            to Equal. Exists is equivalent to wildcard for value,
-                            so that a pod can tolerate all taints of a particular
-                            category.
-                          type: string
-                        tolerationSeconds:
-                          description: TolerationSeconds represents the period of
-                            time the toleration (which must be of effect NoExecute,
-                            otherwise this field is ignored) tolerates the taint.
-                            By default, it is not set, which means tolerate the taint
-                            forever (do not evict). Zero and negative values will
-                            be treated as 0 (evict immediately) by the system.
-                          format: int64
-                          type: integer
-                        value:
-                          description: Value is the taint value the toleration matches
-                            to. If the operator is Exists, the value should be empty,
-                            otherwise just a regular string.
-                          type: string
-                      type: object
-                    type: array
+                  version:
+                    description: The version information that instructs fluid to orchestrate
+                      a particular version of EFC Comp
+                    properties:
+                      image:
+                        description: Image (e.g. alluxio/alluxio)
+                        type: string
+                      imagePullPolicy:
+                        description: 'One of the three policies: `Always`, `IfNotPresent`,
+                          `Never`'
+                        type: string
+                      imageTag:
+                        description: Image tag (e.g. 2.3.0-SNAPSHOT)
+                        type: string
+                    type: object
                 type: object
             type: object
           status:
