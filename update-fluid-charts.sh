@@ -43,4 +43,5 @@ fi
 
 # Replace the version field in chart.yaml with the extracted version number
 # sed -i "s/version: [0-9]\.[0-9]\.[0-9]/version: $version/g" chart.yaml
-find . -type f -name chart.yaml -exec sed -i '' "s/version: [0-9]\.[0-9]\.[0-9]/version: $version/g" {} +
+# find . -type f -name chart.yaml -exec sed -i '' "s/version: [0-9]\.[0-9]\.[0-9]/version: $version/g" {} +
+find . -type f -name Chart.yaml -exec sed -i '' "s/\(version:[ ]*\)[0-9]*\.[0-9]*\.[0-9]*[-0-9A-Za-z\.]*/\1$version/g" '{}' +
