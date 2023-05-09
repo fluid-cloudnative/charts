@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: fluidapp-controller
-  namespace: {{ include "fluid.namespace" . }}
+  namespace: fluid-system
   labels:
     control-plane: fluidapp-controller
 spec:
@@ -45,7 +45,6 @@ spec:
           - --development=false
           - --pprof-addr=:6060
           - --enable-leader-election
-          - --leader-election-namespace={{ include "fluid.namespace" . }}
         env:
         {{- if .Values.workdir }}
           - name: FLUID_WORKDIR
