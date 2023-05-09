@@ -57,10 +57,10 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: fluidapp-controller
-    namespace: {{ include "fluid.namespace" . }}
+    namespace: fluid-system
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: fluidapp-controller
-  namespace: {{ include "fluid.namespace" . }}
+  namespace: fluid-system

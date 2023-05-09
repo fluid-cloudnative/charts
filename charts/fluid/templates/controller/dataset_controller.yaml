@@ -9,7 +9,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: dataset-controller
-  namespace: {{ include "fluid.namespace" . }}
+  namespace: fluid-system
   labels:
     control-plane: dataset-controller
 spec:
@@ -47,7 +47,6 @@ spec:
           - --development=false
           - --pprof-addr=:6060
           - --enable-leader-election
-          - --leader-election-namespace={{ include "fluid.namespace" . }}
         env:
           {{- if .Values.workdir }}
           - name: FLUID_WORKDIR
@@ -57,20 +56,6 @@ spec:
           - name: ALLUXIO_RUNTIME_IMAGE_ENV
             value: {{ .Values.runtime.alluxio.runtime.image | quote }}
           {{- end }}
-          {{- if .Values.image.imagePullSecrets }}
-          - name: IMAGE_PULL_SECRETS
-            {{- $secretList := list }}
-            {{- range .Values.image.imagePullSecrets }}
-              {{- range $name,$v := . }}
-                {{- $secretList = append $secretList $v }}
-              {{- end }}
-            {{- end }}
-            value: {{ join "," $secretList | quote }}
-          {{- end }}
-          - name: MY_POD_NAMESPACE
-            valueFrom:
-              fieldRef:
-                fieldPath: metadata.namespace
         ports:
         - containerPort: 8080
           name: metrics
