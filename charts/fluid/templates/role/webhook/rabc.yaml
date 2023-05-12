@@ -3,7 +3,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: fluid-webhook
-  namespace: fluid-system
+  namespace: {{ include "fluid.namespace" . }}
 rules:
   - apiGroups:
       - ""
@@ -26,7 +26,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: fluid-webhook-rolebinding
-  namespace: fluid-system
+  namespace: {{ include "fluid.namespace" . }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -34,7 +34,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: fluid-webhook
-    namespace: fluid-system
+    namespace: {{ include "fluid.namespace" . }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -62,6 +62,8 @@ rules:
       - jindoruntimes
       - juicefsruntimes
       - goosefsruntimes
+      - thinruntimes
+      - efcruntimes
     verbs:
       - get
       - list
@@ -107,11 +109,11 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: fluid-webhook
-    namespace: fluid-system
+    namespace: {{ include "fluid.namespace" . }}
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: fluid-webhook
-  namespace: fluid-system
+  namespace: {{ include "fluid.namespace" . }}
 {{- end }}

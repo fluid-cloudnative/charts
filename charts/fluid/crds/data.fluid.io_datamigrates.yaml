@@ -5,24 +5,21 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.8.0
   creationTimestamp: null
-  name: dataloads.data.fluid.io
+  name: datamigrates.data.fluid.io
 spec:
   group: data.fluid.io
   names:
     categories:
     - fluid
-    kind: DataLoad
-    listKind: DataLoadList
-    plural: dataloads
+    kind: DataMigrate
+    listKind: DataMigrateList
+    plural: datamigrates
     shortNames:
-    - load
-    singular: dataload
+    - migrate
+    singular: datamigrate
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
-    - jsonPath: .spec.dataset.name
-      name: Dataset
-      type: string
     - jsonPath: .status.phase
       name: Phase
       type: string
@@ -35,7 +32,7 @@ spec:
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: DataLoad is the Schema for the dataloads API
+        description: DataMigrate is the Schema for the datamigrates API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -50,7 +47,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: DataLoadSpec defines the desired state of DataLoad
+            description: DataMigrateSpec defines the desired state of DataMigrate
             properties:
               affinity:
                 description: Affinity defines affinity for DataLoad pod
@@ -877,22 +874,73 @@ spec:
                         type: array
                     type: object
                 type: object
-              dataset:
-                description: Dataset defines the target dataset of the DataLoad
-                properties:
-                  name:
-                    description: Name defines name of the target dataset
-                    type: string
-                  namespace:
-                    description: Namespace defines namespace of the target dataset
-                    type: string
-                required:
-                - name
-                type: object
-              loadMetadata:
-                description: LoadMetadata specifies if the dataload job should load
-                  metadata
+              block:
+                description: if dataMigrate blocked dataset usage, default is false
                 type: boolean
+              from:
+                description: data to migrate source, including dataset and external
+                  storage
+                properties:
+                  dataset:
+                    description: dataset to migrate
+                    properties:
+                      name:
+                        description: name of dataset
+                        type: string
+                      namespace:
+                        description: namespace of dataset
+                        type: string
+                      path:
+                        description: path to migrate
+                        type: string
+                    required:
+                    - name
+                    - namespace
+                    type: object
+                  externalStorage:
+                    description: external storage for data migrate
+                    properties:
+                      encryptOptions:
+                        description: encrypt info for external storage
+                        items:
+                          properties:
+                            name:
+                              description: The name of encryptOption
+                              type: string
+                            valueFrom:
+                              description: The valueFrom of encryptOption
+                              properties:
+                                secretKeyRef:
+                                  description: The encryptInfo obtained from secret
+                                  properties:
+                                    key:
+                                      description: The required key in the secret
+                                      type: string
+                                    name:
+                                      description: The name of required secret
+                                      type: string
+                                  type: object
+                              type: object
+                          type: object
+                        type: array
+                      uri:
+                        description: type of external storage, including s3, oss,
+                          gcs, ceph, nfs, pvc, etc. (related to runtime)
+                        type: string
+                    required:
+                    - uri
+                    type: object
+                type: object
+              image:
+                description: Image (e.g. alluxio/alluxio)
+                type: string
+              imagePullPolicy:
+                description: 'One of the three policies: `Always`, `IfNotPresent`,
+                  `Never`'
+                type: string
+              imageTag:
+                description: Image tag (e.g. 2.3.0-SNAPSHOT)
+                type: string
               nodeSelector:
                 additionalProperties:
                   type: string
@@ -901,7 +949,7 @@ spec:
               options:
                 additionalProperties:
                   type: string
-                description: Options specifies the extra dataload properties for runtime
+                description: options for migrate, different for each runtime
                 type: object
               podMetadata:
                 description: PodMetadata defines labels and annotations that will
@@ -918,26 +966,75 @@ spec:
                     description: Labels are labels of pod specification
                     type: object
                 type: object
+              policy:
+                description: policy for migrate, including None, Once, Cron, OnEvent
+                type: string
+              runtimeType:
+                description: using which runtime to migrate data; if none, take dataset
+                  runtime as default
+                type: string
+              schedule:
+                description: The schedule in Cron format, only set when policy is
+                  cron, see https://en.wikipedia.org/wiki/Cron.
+                type: string
               schedulerName:
                 description: SchedulerName sets the scheduler to be used for DataLoad
                   pod
                 type: string
-              target:
-                description: Target defines target paths that needs to be loaded
-                items:
-                  description: TargetPath defines the target path of the DataLoad
-                  properties:
-                    path:
-                      description: Path defines path to be load
-                      type: string
-                    replicas:
-                      description: Replicas defines how many replicas will be loaded
-                      format: int32
-                      type: integer
-                  required:
-                  - path
-                  type: object
-                type: array
+              to:
+                description: data to migrate destination, including dataset and external
+                  storage
+                properties:
+                  dataset:
+                    description: dataset to migrate
+                    properties:
+                      name:
+                        description: name of dataset
+                        type: string
+                      namespace:
+                        description: namespace of dataset
+                        type: string
+                      path:
+                        description: path to migrate
+                        type: string
+                    required:
+                    - name
+                    - namespace
+                    type: object
+                  externalStorage:
+                    description: external storage for data migrate
+                    properties:
+                      encryptOptions:
+                        description: encrypt info for external storage
+                        items:
+                          properties:
+                            name:
+                              description: The name of encryptOption
+                              type: string
+                            valueFrom:
+                              description: The valueFrom of encryptOption
+                              properties:
+                                secretKeyRef:
+                                  description: The encryptInfo obtained from secret
+                                  properties:
+                                    key:
+                                      description: The required key in the secret
+                                      type: string
+                                    name:
+                                      description: The name of required secret
+                                      type: string
+                                  type: object
+                              type: object
+                          type: object
+                        type: array
+                      uri:
+                        description: type of external storage, including s3, oss,
+                          gcs, ceph, nfs, pvc, etc. (related to runtime)
+                        type: string
+                    required:
+                    - uri
+                    type: object
+                type: object
               tolerations:
                 description: Tolerations defines tolerations for DataLoad pod
                 items:
@@ -978,6 +1075,9 @@ spec:
                       type: string
                   type: object
                 type: array
+            required:
+            - from
+            - to
             type: object
           status:
             description: OperationStatus defines the observed state of operation
