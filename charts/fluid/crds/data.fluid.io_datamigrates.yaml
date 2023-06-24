@@ -967,12 +967,7 @@ spec:
                     type: object
                 type: object
               policy:
-                default: Once
-                description: policy for migrate, including Once, Cron, OnEvent
-                enum:
-                - Once
-                - Cron
-                - OnEvent
+                description: policy for migrate, including None, Once, Cron, OnEvent
                 type: string
               runtimeType:
                 description: using which runtime to migrate data; if none, take dataset
