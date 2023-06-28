@@ -26,6 +26,8 @@ rules:
     resources:
       - jobs
       - jobs/status
+      - cronjobs
+      - cronjobs/status
     verbs:
       - get
       - list
@@ -70,12 +72,7 @@ rules:
     resources:
       - secrets
     verbs:
-      - list
-      - watch
       - get
-      - create
-      - delete
-      - update
   - apiGroups:
       - data.fluid.io
     resources:
