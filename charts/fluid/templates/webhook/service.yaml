@@ -3,7 +3,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: fluid-pod-admission-webhook
-  namespace: {{ include "fluid.namespace" . }}
+  namespace: fluid-system
 spec:
   ports:
     - name: https-rest

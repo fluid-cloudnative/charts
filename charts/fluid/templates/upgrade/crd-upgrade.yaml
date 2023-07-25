@@ -1,9 +1,8 @@
-{{ if .Values.crdUpgrade.enabled -}}
 ---
 apiVersion: batch/v1
 kind: Job
 metadata:
-  namespace: {{ include "fluid.namespace" . }}
+  namespace: fluid-system
   name: fluid-crds-upgrade-{{ .Chart.AppVersion }}
   annotations:
     "helm.sh/hook": pre-upgrade
@@ -47,15 +46,14 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: fluid-crds-upgrade
-    namespace: {{ include "fluid.namespace" . }}
+    namespace: fluid-system
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: fluid-crds-upgrade
-  namespace: {{ include "fluid.namespace" . }}
+  namespace: fluid-system
   annotations:
     "helm.sh/hook": pre-upgrade
     "helm.sh/hook-weight": "-5"
     "helm.sh/hook-delete-policy": hook-succeeded,before-hook-creation
-{{- end }}

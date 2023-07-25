@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: goosefsruntime-controller
-  namespace: {{ include "fluid.namespace" . }}
+  namespace: fluid-system
   labels:
     control-plane: goosefsruntime-controller
 spec:
@@ -21,7 +21,7 @@ spec:
         control-plane: goosefsruntime-controller
       annotations:
       {{ if gt (.Values.runtime.goosefs.replicas | int) 1 -}}
-         controller.runtime.fluid.io/replicas: {{ .Values.runtime.goosefs.replicas | quote }}
+        replicas: {{ .Values.runtime.goosefs.replicas | quote }}
       {{- end }}
     spec:
       {{- with .Values.image.imagePullSecrets }}
@@ -52,7 +52,6 @@ spec:
           - --runtime-workers={{ .Values.runtime.goosefs.runtimeWorkers }}
           - --pprof-addr=:6060
           - --enable-leader-election
-          - --leader-election-namespace={{ include "fluid.namespace" . }}
           - --port-allocate-policy={{ .Values.runtime.goosefs.portAllocatePolicy }}
         env:
           {{- if .Values.workdir }}

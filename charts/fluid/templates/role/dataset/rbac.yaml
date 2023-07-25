@@ -5,79 +5,31 @@ metadata:
   name: dataset-controller
 rules:
   - apiGroups:
-    - ""
-    resources:
-    - persistentvolumes
-    - persistentvolumeclaims
-    verbs:
-    - get
-    - list
-    - watch
-  - apiGroups:
-    - ""
-    resources:
-    - namespaces
-    verbs:
-    - get
-    - list
-    - watch
-  - apiGroups:
       - batch
     resources:
-      - jobs
-      - jobs/status
-      - cronjobs
-      - cronjobs/status
+       - jobs
+       - jobs/status
     verbs:
-      - get
-      - list
-      - watch
-      - create
-      - update
-      - delete
+      - '*'
   - apiGroups:
       - ""
     resources:
+      - persistentvolumeclaims
+      - persistentvolumes
+      - services
+      - endpoints
       - configmaps
-    verbs:
-      - get
-      - list
-      - watch
-      - create
-      - delete
-      - update
-  - apiGroups:
-      - ""
-    resources:
-      - pods
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
-      - ""
-    resources:
-      - pods/exec
-    verbs:
-      - create
-  - apiGroups:
-      - ""
-    resources:
       - events
-    verbs:
-      - create
-      - patch
-  - apiGroups:
-      - ""
-    resources:
+      - namespaces
+      - pods
+      - pods/exec
       - secrets
+      - nodes
     verbs:
-      - get
+      - '*'
   - apiGroups:
       - data.fluid.io
     resources:
-      - datamigrates
-      - datamigrates/status
       - dataloads
       - dataloads/status
       - databackups
@@ -92,10 +44,6 @@ rules:
       - goosefsruntimes/status
       - juicefsruntimes
       - juicefsruntimes/status
-      - thinruntimes
-      - thinruntimes/status
-      - efcruntimes
-      - efcruntimes/status
     verbs:
       - '*'
   - apiGroups:
@@ -137,10 +85,10 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: dataset-controller
-    namespace: {{ include "fluid.namespace" . }}
+    namespace: fluid-system
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: dataset-controller
-  namespace: {{ include "fluid.namespace" . }}
+  namespace: fluid-system

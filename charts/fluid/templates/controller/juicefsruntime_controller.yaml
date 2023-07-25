@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: juicefsruntime-controller
-  namespace: {{ include "fluid.namespace" . }}
+  namespace: fluid-system
   labels:
     control-plane: juicefsruntime-controller
 spec:
@@ -21,7 +21,7 @@ spec:
         control-plane: juicefsruntime-controller
       annotations:
       {{ if gt (.Values.runtime.juicefs.replicas | int) 1 -}}
-         controller.runtime.fluid.io/replicas: {{ .Values.runtime.juicefs.replicas | quote }}
+        replicas: {{ .Values.runtime.juicefs.replicas | quote }}
       {{- end }}
     spec:
       {{- with .Values.image.imagePullSecrets }}
@@ -48,8 +48,6 @@ spec:
           - --development=false
           - --pprof-addr=:6060
           - --enable-leader-election
-          - --runtime-workers={{ .Values.runtime.juicefs.runtimeWorkers }}
-          - --leader-election-namespace={{ include "fluid.namespace" . }}
         command: ["juicefsruntime-controller", "start"]
         env:
           {{- if .Values.runtime.juicefs.fuse.image }}
@@ -68,8 +66,6 @@ spec:
           - name: FLUID_SYNC_RETRY_DURATION
             value: {{ .Values.runtime.syncRetryDuration | quote }}
           {{- end }}
-          - name: HELM_DRIVER
-            value: configmap
         ports:
         - containerPort: 8080
           name: metrics
