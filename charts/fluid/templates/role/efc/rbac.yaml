@@ -2,7 +2,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: goosefsruntime-controller
+  name: efcruntime-controller
 rules:
   - apiGroups:
     - ""
@@ -12,6 +12,7 @@ rules:
     - get
     - list
     - watch
+    - create
   - apiGroups:
     - ""
     resources:
@@ -74,17 +75,7 @@ rules:
     verbs:
     - create
     - patch
-  - apiGroups:
-    - ""
-    resources:
-    - secrets
-    verbs:
-    - list
-    - watch
-    - get
-    - create
-    - delete
-    - update
+{{- template "fluid.helmDriver.rbacs" . }}
   - apiGroups:
     - ""
     resources:
@@ -98,11 +89,9 @@ rules:
   - apiGroups:
       - data.fluid.io
     resources:
-      - goosefsdataloads
-      - goosefsruntimes
+      - efcruntimes
       - datasets
-      - goosefsdataloads/status
-      - goosefsruntimes/status
+      - efcruntimes/status
       - datasets/status
     verbs:
       - '*'
@@ -120,23 +109,23 @@ rules:
     resources:
       - leases
     verbs:
-      - '*'
+      - "*"
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: goosefsruntime-clusterrolebinding
+  name: efcruntime-clusterrolebinding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: goosefsruntime-controller
+  name: efcruntime-controller
 subjects:
   - kind: ServiceAccount
-    name: goosefsruntime-controller
+    name: efcruntime-controller
     namespace: {{ include "fluid.namespace" . }}
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: goosefsruntime-controller
+  name: efcruntime-controller
   namespace: {{ include "fluid.namespace" . }}
