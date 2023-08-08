@@ -5,35 +5,80 @@ metadata:
   name: dataset-controller
 rules:
   - apiGroups:
+    - ""
+    resources:
+    - persistentvolumes
+    - persistentvolumeclaims
+    verbs:
+    - get
+    - list
+    - watch
+  - apiGroups:
+    - ""
+    resources:
+    - namespaces
+    verbs:
+    - get
+    - list
+    - watch
+  - apiGroups:
       - batch
     resources:
-       - jobs
-       - jobs/status
+      - jobs
+      - jobs/status
+      - cronjobs
+      - cronjobs/status
     verbs:
-      - '*'
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - delete
   - apiGroups:
       - ""
     resources:
-      - persistentvolumeclaims
-      - persistentvolumes
-      - services
-      - endpoints
       - configmaps
-      - events
-      - namespaces
-      - pods
-      - pods/exec
-      - secrets
-      - nodes
     verbs:
-      - '*'
+      - get
+      - list
+      - watch
+      - create
+      - delete
+      - update
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - pods/exec
+    verbs:
+      - create
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+      - patch
+{{- template "fluid.helmDriver.rbacs" . }}
   - apiGroups:
       - data.fluid.io
     resources:
+      - datamigrates
+      - datamigrates/status
       - dataloads
       - dataloads/status
       - databackups
       - databackups/status
+      - dataprocesses
+      - dataprocesses/status
       - datasets
       - datasets/status
       - alluxioruntimes
@@ -44,6 +89,10 @@ rules:
       - goosefsruntimes/status
       - juicefsruntimes
       - juicefsruntimes/status
+      - thinruntimes
+      - thinruntimes/status
+      - efcruntimes
+      - efcruntimes/status
     verbs:
       - '*'
   - apiGroups:
@@ -85,10 +134,10 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: dataset-controller
-    namespace: fluid-system
+    namespace: {{ include "fluid.namespace" . }}
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: dataset-controller
-  namespace: fluid-system
+  namespace: {{ include "fluid.namespace" . }}

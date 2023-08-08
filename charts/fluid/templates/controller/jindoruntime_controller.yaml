@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: jindoruntime-controller
-  namespace: fluid-system
+  namespace: {{ include "fluid.namespace" . }}
   labels:
     control-plane: jindoruntime-controller
 spec:
@@ -21,7 +21,7 @@ spec:
         control-plane: jindoruntime-controller
       annotations:
       {{ if gt (.Values.runtime.jindo.replicas | int) 1 -}}
-        replicas: {{ .Values.runtime.jindo.replicas | quote }}
+        controller.runtime.fluid.io/replicas: {{ .Values.runtime.jindo.replicas | quote }}
       {{- end }}
     spec:
       {{- with .Values.image.imagePullSecrets }}
@@ -38,8 +38,10 @@ spec:
                 operator: NotIn
                 values:
                 - virtual-kubelet
+      {{- if .Values.runtime.jindo.tolerations }}
       tolerations:
-        - operator: Exists
+{{ toYaml .Values.runtime.jindo.tolerations | indent 6 }}
+      {{- end }}
       containers:
       - image: {{ .Values.runtime.jindo.controller.image | quote }}
         name: manager
@@ -50,6 +52,7 @@ spec:
           - --runtime-workers={{ .Values.runtime.jindo.runtimeWorkers }}
           - --pprof-addr=:6060
           - --enable-leader-election
+          - --leader-election-namespace={{ include "fluid.namespace" . }}
           - --port-allocate-policy={{ .Values.runtime.jindo.portAllocatePolicy }}
         env:
         {{- if .Values.workdir }}
@@ -92,6 +95,8 @@ spec:
         - name: QUERY_UFS_TOTAL
           value: {{ .Values.runtime.jindo.queryUfsTotal | quote }}
         {{- end }}
+        - name: HELM_DRIVER
+          value: {{ template "fluid.helmDriver" . }}
         ports:
           - containerPort: 8080
             name: metrics

@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: goosefsruntime-controller
-  namespace: fluid-system
+  namespace: {{ include "fluid.namespace" . }}
   labels:
     control-plane: goosefsruntime-controller
 spec:
@@ -21,7 +21,7 @@ spec:
         control-plane: goosefsruntime-controller
       annotations:
       {{ if gt (.Values.runtime.goosefs.replicas | int) 1 -}}
-        replicas: {{ .Values.runtime.goosefs.replicas | quote }}
+         controller.runtime.fluid.io/replicas: {{ .Values.runtime.goosefs.replicas | quote }}
       {{- end }}
     spec:
       {{- with .Values.image.imagePullSecrets }}
@@ -38,8 +38,10 @@ spec:
                 operator: NotIn
                 values:
                 - virtual-kubelet
+      {{- if .Values.runtime.goosefs.tolerations }}
       tolerations:
-      - operator: Exists
+{{ toYaml .Values.runtime.goosefs.tolerations | indent 6 }}
+      {{- end }}
       #hostNetwork: true
       containers:
       - image: "{{ .Values.runtime.goosefs.controller.image }}"
@@ -52,6 +54,7 @@ spec:
           - --runtime-workers={{ .Values.runtime.goosefs.runtimeWorkers }}
           - --pprof-addr=:6060
           - --enable-leader-election
+          - --leader-election-namespace={{ include "fluid.namespace" . }}
           - --port-allocate-policy={{ .Values.runtime.goosefs.portAllocatePolicy }}
         env:
           {{- if .Values.workdir }}

@@ -2,7 +2,7 @@ kind: DaemonSet
 apiVersion: apps/v1
 metadata:
   name: csi-nodeplugin-fluid
-  namespace: fluid-system
+  namespace: {{ include "fluid.namespace" . }}
 spec:
   updateStrategy:
     type: RollingUpdate
@@ -18,9 +18,11 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccount: fluid-csi
+      serviceAccountName: fluid-csi
+      {{- if .Values.csi.tolerations }}
       tolerations:
-      - operator: Exists
+{{ toYaml .Values.csi.tolerations | indent 6 }}
+      {{- end }}
       #priorityClassName: system-node-critical
       {{- if .Values.csi.config.hostNetwork }}
       hostNetwork: true

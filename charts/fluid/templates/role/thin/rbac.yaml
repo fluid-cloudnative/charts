@@ -2,7 +2,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: goosefsruntime-controller
+  name: thinruntime-controller
 rules:
   - apiGroups:
     - ""
@@ -22,6 +22,7 @@ rules:
     - watch
     - create
     - update
+    - patch
     - delete
   - apiGroups:
     - ""
@@ -33,6 +34,7 @@ rules:
     - watch
     - create
     - update
+    - patch
     - delete
   - apiGroups:
     - ""
@@ -74,17 +76,7 @@ rules:
     verbs:
     - create
     - patch
-  - apiGroups:
-    - ""
-    resources:
-    - secrets
-    verbs:
-    - list
-    - watch
-    - get
-    - create
-    - delete
-    - update
+{{- template "fluid.helmDriver.rbacs" . }}
   - apiGroups:
     - ""
     resources:
@@ -94,18 +86,42 @@ rules:
     - delete
     - list
     - watch
-    - get 
+    - get
   - apiGroups:
       - data.fluid.io
     resources:
-      - goosefsdataloads
+      - alluxioruntimes
+      - jindoruntimes
+      - juicefsruntimes
       - goosefsruntimes
+      - efcruntimes
+      - thinruntimes
+      - thinruntimeprofiles
       - datasets
-      - goosefsdataloads/status
-      - goosefsruntimes/status
+      - thinruntimes/status
+      - thinruntimeprofiles/status
       - datasets/status
     verbs:
       - '*'
+  - apiGroups:
+      - ""
+    resources:
+      - serviceaccounts
+    verbs:
+      - create
+      - list
+      - get
+      - delete
+  - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
+      - clusterroles
+      - clusterrolebindings
+    verbs:
+      - create
+      - list
+      - get
+      - delete
   - apiGroups:
       - apps
     resources:
@@ -120,23 +136,23 @@ rules:
     resources:
       - leases
     verbs:
-      - '*'
+      - "*"
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: goosefsruntime-clusterrolebinding
+  name: thinruntime-clusterrolebinding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: goosefsruntime-controller
+  name: thinruntime-controller
 subjects:
   - kind: ServiceAccount
-    name: goosefsruntime-controller
+    name: thinruntime-controller
     namespace: {{ include "fluid.namespace" . }}
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: goosefsruntime-controller
+  name: thinruntime-controller
   namespace: {{ include "fluid.namespace" . }}
