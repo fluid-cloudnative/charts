@@ -7461,15 +7461,25 @@ spec:
                         - containers
                         type: object
                     type: object
+                  podMetadata:
+                    description: PodMetadata defines labels and annotations on the
+                      processor pod.
+                    properties:
+                      annotations:
+                        additionalProperties:
+                          type: string
+                        description: Annotations are annotations of pod specification
+                        type: object
+                      labels:
+                        additionalProperties:
+                          type: string
+                        description: Labels are labels of pod specification
+                        type: object
+                    type: object
                   script:
                     description: Shell represents a processor which executes shell
                       script
                     properties:
-                      args:
-                        description: Arguments to the entrypoint.
-                        items:
-                          type: string
-                        type: array
                       command:
                         description: Entrypoint command for ScriptProcessor.
                         items:
@@ -7606,6 +7616,9 @@ spec:
                         enum:
                         - Never
                         - OnFailure
+                        type: string
+                      source:
+                        description: Script source for ScriptProcessor
                         type: string
                       volumeMounts:
                         description: Pod volumes to mount into the container's filesystem.
@@ -9255,11 +9268,38 @@ spec:
                           - name
                           type: object
                         type: array
+                    required:
+                    - source
                     type: object
                   serviceAccountName:
                     description: ServiceAccountName defiens the serviceAccountName
                       of the container
                     type: string
+                type: object
+              runAfter:
+                description: Specifies that the preceding operation in a workflow
+                properties:
+                  apiVersion:
+                    description: API version of the referent operation
+                    type: string
+                  kind:
+                    description: Kind specifies the type of the referent operation
+                    enum:
+                    - DataLoad
+                    - DataBackup
+                    - DataMigrate
+                    - DataProcess
+                    type: string
+                  name:
+                    description: Name specifies the name of the referent operation
+                    type: string
+                  namespace:
+                    description: Namespace specifies the namespace of the referent
+                      operation.
+                    type: string
+                required:
+                - kind
+                - name
                 type: object
             required:
             - dataset
@@ -9324,6 +9364,14 @@ spec:
               phase:
                 description: Phase describes current phase of operation
                 type: string
+              waitingFor:
+                description: WaitingStatus stores information about waiting operation.
+                properties:
+                  operationComplete:
+                    description: OperationComplete indicates if the preceding operation
+                      is complete
+                    type: boolean
+                type: object
             required:
             - conditions
             - duration
