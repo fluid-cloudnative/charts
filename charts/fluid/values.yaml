@@ -3,14 +3,8 @@
 # Declare variables to be passed into your templates.
 
 workdir: /tmp
-
-# Change the helm backend storage driver used by Fluid's controllers. 
-# For now, only "configmap" and "secret" are supported.
-helmDriver: configmap
-
 crdUpgrade:
-  enabled: true
-  image: fluidcloudnative/fluid-crd-upgrader:v1.0.0-b402b33
+  image: fluidcloudnative/fluid-crd-upgrader:v0.9.2-02f70ac
 
 ##  if unspecified, will use built-in variable `.Release.Namespace`.
 namespace: fluid-system
@@ -20,21 +14,17 @@ image:
 
 dataset:
   replicas: 1
-  tolerations:
-    - operator: Exists
   controller:
-    image: fluidcloudnative/dataset-controller:v1.0.0-b402b33
+    image: fluidcloudnative/dataset-controller:v0.9.2-02f70ac
 
 csi:
-  tolerations:
-    - operator: Exists
   featureGates: "FuseRecovery=false"
   config:
     hostNetwork: false
   registrar:
     image: fluidcloudnative/csi-node-driver-registrar:v2.3.0
   plugins:
-    image: fluidcloudnative/fluid-csi:v1.0.0-b402b33
+    image: fluidcloudnative/fluid-csi:v0.9.2-02f70ac
   kubelet:
     kubeConfigFile: /etc/kubernetes/kubelet.conf
     certDir: /var/lib/kubelet/pki
@@ -48,8 +38,6 @@ runtime:
   mountRoot: /runtime-mnt
   alluxio:
     replicas: 1
-    tolerations:
-      - operator: Exists
     runtimeWorkers: 3
     portRange: 20000-26000
     portAllocatePolicy: random
@@ -57,16 +45,13 @@ runtime:
     init:
       image: fluidcloudnative/init-users:v0.9.0
     controller:
-      image: fluidcloudnative/alluxioruntime-controller:v1.0.0-b402b33
+      image: fluidcloudnative/alluxioruntime-controller:v0.9.2-02f70ac
     runtime:
       image: alluxio/alluxio-dev:2.9.0
     fuse:
       image: alluxio/alluxio-dev:2.9.0
-    mountConfigStorage: configmap
   jindo:
     replicas: 1
-    tolerations:
-      - operator: Exists
     runtimeWorkers: 3
     portRange: 18000-19999
     portAllocatePolicy: random
@@ -74,19 +59,17 @@ runtime:
     engine: jindofsx
     queryUfsTotal: true
     smartdata:
-      image: registry.cn-shanghai.aliyuncs.com/jindofs/smartdata:4.6.8
+      image: registry.cn-shanghai.aliyuncs.com/jindofs/smartdata:4.6.7
     fuse:
-      image: registry.cn-shanghai.aliyuncs.com/jindofs/jindo-fuse:4.6.8
+      image: registry.cn-shanghai.aliyuncs.com/jindofs/jindo-fuse:4.6.7
     controller:
-      image: fluidcloudnative/jindoruntime-controller:v1.0.0-b402b33
+      image: fluidcloudnative/jindoruntime-controller:v0.9.2-02f70ac
     init:
       portCheck:
         enabled: false
       image: fluidcloudnative/init-users:v0.9.0
   goosefs:
     replicas: 1
-    tolerations:
-      - operator: Exists
     runtimeWorkers: 3
     portRange: 26000-32000
     portAllocatePolicy: random
@@ -94,38 +77,29 @@ runtime:
     init:
       image: fluidcloudnative/init-users:v0.9.0
     controller:
-      image: fluidcloudnative/goosefsruntime-controller:v1.0.0-b402b33
+      image: fluidcloudnative/goosefsruntime-controller:v0.9.2-02f70ac
     runtime:
       image: ccr.ccs.tencentyun.com/qcloud/goosefs:v1.2.0
     fuse:
       image: ccr.ccs.tencentyun.com/qcloud/goosefs-fuse:v1.2.0
   juicefs:
     replicas: 1
-    tolerations:
-      - operator: Exists
     enabled: false
     runtimeWorkers: 3
     controller:
-      image: fluidcloudnative/juicefsruntime-controller:v1.0.0-b402b33
+      image: fluidcloudnative/juicefsruntime-controller:v0.9.2-02f70ac
     fuse:
-      ceimage: juicedata/juicefs-fuse:ce-v1.1.0-rc1
-      eeimage: juicedata/juicefs-fuse:ee-4.9.16
+      image: juicedata/juicefs-fuse:v1.0.4-4.9.2
   thin:
     replicas: 1
-    tolerations:
-      - operator: Exists
     enabled: false
     controller:
-      image: fluidcloudnative/thinruntime-controller:v1.0.0-b402b33
-    fuse:
-      configStorage: configmap
+      image: fluidcloudnative/thinruntime-controller:v0.9.2-02f70ac
   efc:
     replicas: 1
-    tolerations:
-      - operator: Exists
     enabled: false
     controller:
-      image: fluidcloudnative/efcruntime-controller:v1.0.0-b402b33
+      image: fluidcloudnative/efcruntime-controller:v0.9.2-02f70ac
       imagePullPolicy: Always
     init:
       image: registry.cn-zhangjiakou.aliyuncs.com/nascache/init-alifuse:v1.2.2-19dcee9
@@ -138,17 +112,13 @@ runtime:
 
 webhook:
   enabled: true
-  image: fluidcloudnative/fluid-webhook:v1.0.0-b402b33
+  image: fluidcloudnative/fluid-webhook:v0.9.2-02f70ac
   replicas: 1
   timeoutSeconds: 15
   reinvocationPolicy: IfNeeded
-  tolerations:
-    - operator: Exists
 
 fluidapp:
   enabled: true
   replicas: 1
-  tolerations:
-    - operator: Exists
   controller:
-    image: fluidcloudnative/application-controller:v1.0.0-b402b33
+    image: fluidcloudnative/application-controller:v0.9.2-02f70ac
