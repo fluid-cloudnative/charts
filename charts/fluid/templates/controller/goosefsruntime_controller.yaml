@@ -38,10 +38,8 @@ spec:
                 operator: NotIn
                 values:
                 - virtual-kubelet
-      {{- if .Values.runtime.goosefs.tolerations }}
       tolerations:
-{{ toYaml .Values.runtime.goosefs.tolerations | indent 6 }}
-      {{- end }}
+      - operator: Exists
       #hostNetwork: true
       containers:
       - image: "{{ .Values.runtime.goosefs.controller.image }}"

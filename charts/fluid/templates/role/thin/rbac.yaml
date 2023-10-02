@@ -76,7 +76,17 @@ rules:
     verbs:
     - create
     - patch
-{{- template "fluid.helmDriver.rbacs" . }}
+  - apiGroups:
+    - ""
+    resources:
+    - secrets
+    verbs:
+    - create
+    - delete
+    - list
+    - watch
+    - get
+    - update
   - apiGroups:
     - ""
     resources:
