@@ -26,6 +26,8 @@ rules:
     resources:
       - jobs
       - jobs/status
+      - cronjobs
+      - cronjobs/status
     verbs:
       - get
       - list
@@ -65,17 +67,7 @@ rules:
     verbs:
       - create
       - patch
-  - apiGroups:
-      - ""
-    resources:
-      - secrets
-    verbs:
-      - list
-      - watch
-      - get
-      - create
-      - delete
-      - update
+{{- template "fluid.helmDriver.rbacs" . }}
   - apiGroups:
       - data.fluid.io
     resources:
@@ -85,6 +77,8 @@ rules:
       - dataloads/status
       - databackups
       - databackups/status
+      - dataprocesses
+      - dataprocesses/status
       - datasets
       - datasets/status
       - alluxioruntimes

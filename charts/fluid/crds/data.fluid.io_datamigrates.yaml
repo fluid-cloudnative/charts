@@ -967,8 +967,38 @@ spec:
                     type: object
                 type: object
               policy:
-                description: policy for migrate, including None, Once, Cron, OnEvent
+                default: Once
+                description: policy for migrate, including Once, Cron, OnEvent
+                enum:
+                - Once
+                - Cron
+                - OnEvent
                 type: string
+              runAfter:
+                description: Specifies that the preceding operation in a workflow
+                properties:
+                  apiVersion:
+                    description: API version of the referent operation
+                    type: string
+                  kind:
+                    description: Kind specifies the type of the referent operation
+                    enum:
+                    - DataLoad
+                    - DataBackup
+                    - DataMigrate
+                    - DataProcess
+                    type: string
+                  name:
+                    description: Name specifies the name of the referent operation
+                    type: string
+                  namespace:
+                    description: Namespace specifies the namespace of the referent
+                      operation.
+                    type: string
+                required:
+                - kind
+                - name
+                type: object
               runtimeType:
                 description: using which runtime to migrate data; if none, take dataset
                   runtime as default
@@ -1075,6 +1105,11 @@ spec:
                       type: string
                   type: object
                 type: array
+              ttlSecondsAfterFinished:
+                description: TTLSecondsAfterFinished is the time second to clean up
+                  data operations after finished or failed
+                format: int32
+                type: integer
             required:
             - from
             - to
@@ -1125,9 +1160,27 @@ spec:
                   type: string
                 description: Infos operation customized name-value
                 type: object
+              lastScheduleTime:
+                description: LastScheduleTime is the last time the cron operation
+                  was scheduled
+                format: date-time
+                type: string
+              lastSuccessfulTime:
+                description: LastSuccessfulTime is the last time the cron operation
+                  successfully completed
+                format: date-time
+                type: string
               phase:
                 description: Phase describes current phase of operation
                 type: string
+              waitingFor:
+                description: WaitingStatus stores information about waiting operation.
+                properties:
+                  operationComplete:
+                    description: OperationComplete indicates if the preceding operation
+                      is complete
+                    type: boolean
+                type: object
             required:
             - conditions
             - duration
