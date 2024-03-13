@@ -38,10 +38,8 @@ spec:
                 operator: NotIn
                 values:
                 - virtual-kubelet
-      {{- if .Values.runtime.jindo.tolerations }}
       tolerations:
-{{ toYaml .Values.runtime.jindo.tolerations | indent 6 }}
-      {{- end }}
+        - operator: Exists
       containers:
       - image: {{ .Values.runtime.jindo.controller.image | quote }}
         name: manager
@@ -95,8 +93,6 @@ spec:
         - name: QUERY_UFS_TOTAL
           value: {{ .Values.runtime.jindo.queryUfsTotal | quote }}
         {{- end }}
-        - name: HELM_DRIVER
-          value: {{ template "fluid.helmDriver" . }}
         ports:
           - containerPort: 8080
             name: metrics

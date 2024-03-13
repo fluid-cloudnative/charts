@@ -64,7 +64,6 @@ rules:
       - goosefsruntimes
       - thinruntimes
       - efcruntimes
-      - vineyardruntimes
     verbs:
       - get
       - list

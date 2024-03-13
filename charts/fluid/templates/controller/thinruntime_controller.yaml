@@ -34,10 +34,8 @@ spec:
                     operator: NotIn
                     values:
                       - virtual-kubelet
-      {{- if .Values.runtime.thin.tolerations }}
       tolerations:
-{{ toYaml .Values.runtime.thin.tolerations | indent 6 }}
-      {{- end }}
+        - operator: Exists
       #hostNetwork: true
       containers:
         - image: "{{ .Values.runtime.thin.controller.image }}"
@@ -61,10 +59,6 @@ spec:
             - name: FLUID_SYNC_RETRY_DURATION
               value: {{ .Values.runtime.syncRetryDuration | quote }}
             {{- end }}
-            - name: HELM_DRIVER
-              value: {{ template "fluid.helmDriver" . }}
-            - name: THIN_FUSE_CONFIG_STORAGE
-              value: {{ .Values.runtime.thin.fuse.configStorage }}
           ports:
             - containerPort: 8080
               name: metrics

@@ -918,70 +918,6 @@ spec:
                     description: Labels are labels of pod specification
                     type: object
                 type: object
-              policy:
-                default: Once
-                description: including Once, Cron, OnEvent
-                enum:
-                - Once
-                - Cron
-                - OnEvent
-                type: string
-              resources:
-                description: Resources that will be requested by the DataLoad job.
-                  <br>
-                properties:
-                  limits:
-                    additionalProperties:
-                      anyOf:
-                      - type: integer
-                      - type: string
-                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
-                      x-kubernetes-int-or-string: true
-                    description: 'Limits describes the maximum amount of compute resources
-                      allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/'
-                    type: object
-                  requests:
-                    additionalProperties:
-                      anyOf:
-                      - type: integer
-                      - type: string
-                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
-                      x-kubernetes-int-or-string: true
-                    description: 'Requests describes the minimum amount of compute
-                      resources required. If Requests is omitted for a container,
-                      it defaults to Limits if that is explicitly specified, otherwise
-                      to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/'
-                    type: object
-                type: object
-              runAfter:
-                description: Specifies that the preceding operation in a workflow
-                properties:
-                  apiVersion:
-                    description: API version of the referent operation
-                    type: string
-                  kind:
-                    description: Kind specifies the type of the referent operation
-                    enum:
-                    - DataLoad
-                    - DataBackup
-                    - DataMigrate
-                    - DataProcess
-                    type: string
-                  name:
-                    description: Name specifies the name of the referent operation
-                    type: string
-                  namespace:
-                    description: Namespace specifies the namespace of the referent
-                      operation.
-                    type: string
-                required:
-                - kind
-                - name
-                type: object
-              schedule:
-                description: The schedule in Cron format, only set when policy is
-                  cron, see https://en.wikipedia.org/wiki/Cron.
-                type: string
               schedulerName:
                 description: SchedulerName sets the scheduler to be used for DataLoad
                   pod
@@ -1042,11 +978,6 @@ spec:
                       type: string
                   type: object
                 type: array
-              ttlSecondsAfterFinished:
-                description: TTLSecondsAfterFinished is the time second to clean up
-                  data operations after finished or failed
-                format: int32
-                type: integer
             type: object
           status:
             description: OperationStatus defines the observed state of operation
@@ -1094,27 +1025,9 @@ spec:
                   type: string
                 description: Infos operation customized name-value
                 type: object
-              lastScheduleTime:
-                description: LastScheduleTime is the last time the cron operation
-                  was scheduled
-                format: date-time
-                type: string
-              lastSuccessfulTime:
-                description: LastSuccessfulTime is the last time the cron operation
-                  successfully completed
-                format: date-time
-                type: string
               phase:
                 description: Phase describes current phase of operation
                 type: string
-              waitingFor:
-                description: WaitingStatus stores information about waiting operation.
-                properties:
-                  operationComplete:
-                    description: OperationComplete indicates if the preceding operation
-                      is complete
-                    type: boolean
-                type: object
             required:
             - conditions
             - duration
