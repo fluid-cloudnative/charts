@@ -56,6 +56,5 @@
 * Support pass image pull secrets from fluid charts to alluxioruntime controller
 * Fix components rbacs and set Fluid CSI Plugin with node-authorized kube-client
 
-### 1.0.0
+### 0.9.1
 * Fix CSI Plugin loop mount bug
-* Make toleration configurable

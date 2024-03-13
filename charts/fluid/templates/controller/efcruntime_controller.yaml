@@ -38,10 +38,8 @@ spec:
                 operator: NotIn
                 values:
                 - virtual-kubelet
-      {{- if .Values.runtime.efc.tolerations }}
       tolerations:
-{{ toYaml .Values.runtime.efc.tolerations | indent 6 }}
-      {{- end }}
+      - operator: Exists
       #hostNetwork: true
       containers:
       - image: "{{ .Values.runtime.efc.controller.image }}"
@@ -84,8 +82,6 @@ spec:
           - name: EFC_SESSMGR_IMAGE_ENV
             value: {{ .Values.runtime.efc.fuse.image | quote }}
           {{- end }}
-          - name: HELM_DRIVER
-            value: {{ template "fluid.helmDriver" . }}
           {{- if .Values.image.imagePullSecrets }}
           - name: IMAGE_PULL_SECRETS
             {{- $secretList := list }}

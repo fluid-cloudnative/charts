@@ -90,9 +90,7 @@ spec:
                     type: string
                 type: object
               mounts:
-                description: Mount Points to be mounted on cache runtime. <br> This
-                  field can be empty because some runtimes don't need to mount external
-                  storage (e.g. <a href="https://v6d.io/">Vineyard</a>).
+                description: Mount Points to be mounted on Alluxio.
                 items:
                   description: Mount describes a mounting. <br> Refer to <a href="https://docs.alluxio.io/os/user/stable/en/ufs/S3.html">Alluxio
                     Storage Integrations</a> for more info
@@ -116,12 +114,8 @@ spec:
                                   name:
                                     description: The name of required secret
                                     type: string
-                                required:
-                                - name
                                 type: object
                             type: object
-                        required:
-                        - name
                         type: object
                       type: array
                     mountPoint:
@@ -149,8 +143,6 @@ spec:
                     shared:
                       description: 'Optional: Defaults to false (shared).'
                       type: boolean
-                  required:
-                  - mountPoint
                   type: object
                 minItems: 1
                 type: array
@@ -319,12 +311,8 @@ spec:
                             name:
                               description: The name of required secret
                               type: string
-                          required:
-                          - name
                           type: object
                       type: object
-                  required:
-                  - name
                   type: object
                 type: array
               sharedOptions:
@@ -372,6 +360,8 @@ spec:
                       type: string
                   type: object
                 type: array
+            required:
+            - mounts
             type: object
           status:
             description: DatasetStatus defines the observed state of Dataset
@@ -468,12 +458,8 @@ spec:
                                   name:
                                     description: The name of required secret
                                     type: string
-                                required:
-                                - name
                                 type: object
                             type: object
-                        required:
-                        - name
                         type: object
                       type: array
                     mountPoint:
@@ -501,8 +487,6 @@ spec:
                     shared:
                       description: 'Optional: Defaults to false (shared).'
                       type: boolean
-                  required:
-                  - mountPoint
                   type: object
                 type: array
               operationRef:
