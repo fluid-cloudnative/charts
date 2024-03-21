@@ -50,7 +50,7 @@ spec:
             description: DataMigrateSpec defines the desired state of DataMigrate
             properties:
               affinity:
-                description: Affinity defines affinity for DataLoad pod
+                description: Affinity defines affinity for DataMigrate pod
                 properties:
                   nodeAffinity:
                     description: Describes node affinity scheduling rules for the
@@ -919,8 +919,12 @@ spec:
                                     name:
                                       description: The name of required secret
                                       type: string
+                                  required:
+                                  - name
                                   type: object
                               type: object
+                          required:
+                          - name
                           type: object
                         type: array
                       uri:
@@ -944,16 +948,30 @@ spec:
               nodeSelector:
                 additionalProperties:
                   type: string
-                description: NodeSelector defiens node selector for DataLoad pod
+                description: NodeSelector defiens node selector for DataMigrate pod
                 type: object
               options:
                 additionalProperties:
                   type: string
                 description: options for migrate, different for each runtime
                 type: object
+              parallelOptions:
+                additionalProperties:
+                  type: string
+                description: ParallelOptions defines options like ssh port and ssh
+                  secret name when parallelism is greater than 1.
+                type: object
+              parallelism:
+                default: 1
+                description: Parallelism defines the parallelism tasks numbers for
+                  DataMigrate. If the value is greater than 1, the job acts as a launcher,
+                  and users should define the WorkerSpec.
+                format: int32
+                minimum: 1
+                type: integer
               podMetadata:
                 description: PodMetadata defines labels and annotations that will
-                  be propagated to DataLoad pods
+                  be propagated to DataMigrate pods
                 properties:
                   annotations:
                     additionalProperties:
@@ -967,8 +985,65 @@ spec:
                     type: object
                 type: object
               policy:
-                description: policy for migrate, including None, Once, Cron, OnEvent
+                default: Once
+                description: policy for migrate, including Once, Cron, OnEvent
+                enum:
+                - Once
+                - Cron
+                - OnEvent
                 type: string
+              resources:
+                description: Resources that will be requested by the DataMigrate job.
+                  <br>
+                properties:
+                  limits:
+                    additionalProperties:
+                      anyOf:
+                      - type: integer
+                      - type: string
+                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                      x-kubernetes-int-or-string: true
+                    description: 'Limits describes the maximum amount of compute resources
+                      allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/'
+                    type: object
+                  requests:
+                    additionalProperties:
+                      anyOf:
+                      - type: integer
+                      - type: string
+                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                      x-kubernetes-int-or-string: true
+                    description: 'Requests describes the minimum amount of compute
+                      resources required. If Requests is omitted for a container,
+                      it defaults to Limits if that is explicitly specified, otherwise
+                      to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/'
+                    type: object
+                type: object
+              runAfter:
+                description: Specifies that the preceding operation in a workflow
+                properties:
+                  apiVersion:
+                    description: API version of the referent operation
+                    type: string
+                  kind:
+                    description: Kind specifies the type of the referent operation
+                    enum:
+                    - DataLoad
+                    - DataBackup
+                    - DataMigrate
+                    - DataProcess
+                    type: string
+                  name:
+                    description: Name specifies the name of the referent operation
+                    type: string
+                  namespace:
+                    description: Namespace specifies the namespace of the referent
+                      operation.
+                    type: string
+                required:
+                - kind
+                - name
+                type: object
               runtimeType:
                 description: using which runtime to migrate data; if none, take dataset
                   runtime as default
@@ -978,7 +1053,7 @@ spec:
                   cron, see https://en.wikipedia.org/wiki/Cron.
                 type: string
               schedulerName:
-                description: SchedulerName sets the scheduler to be used for DataLoad
+                description: SchedulerName sets the scheduler to be used for DataMigrate
                   pod
                 type: string
               to:
@@ -1023,8 +1098,12 @@ spec:
                                     name:
                                       description: The name of required secret
                                       type: string
+                                  required:
+                                  - name
                                   type: object
                               type: object
+                          required:
+                          - name
                           type: object
                         type: array
                       uri:
@@ -1036,7 +1115,7 @@ spec:
                     type: object
                 type: object
               tolerations:
-                description: Tolerations defines tolerations for DataLoad pod
+                description: Tolerations defines tolerations for DataMigrate pod
                 items:
                   description: The pod this Toleration is attached to tolerates any
                     taint that matches the triple <key,value,effect> using the matching
@@ -1075,6 +1154,11 @@ spec:
                       type: string
                   type: object
                 type: array
+              ttlSecondsAfterFinished:
+                description: TTLSecondsAfterFinished is the time second to clean up
+                  data operations after finished or failed
+                format: int32
+                type: integer
             required:
             - from
             - to
@@ -1125,9 +1209,27 @@ spec:
                   type: string
                 description: Infos operation customized name-value
                 type: object
+              lastScheduleTime:
+                description: LastScheduleTime is the last time the cron operation
+                  was scheduled
+                format: date-time
+                type: string
+              lastSuccessfulTime:
+                description: LastSuccessfulTime is the last time the cron operation
+                  successfully completed
+                format: date-time
+                type: string
               phase:
                 description: Phase describes current phase of operation
                 type: string
+              waitingFor:
+                description: WaitingStatus stores information about waiting operation.
+                properties:
+                  operationComplete:
+                    description: OperationComplete indicates if the preceding operation
+                      is complete
+                    type: boolean
+                type: object
             required:
             - conditions
             - duration

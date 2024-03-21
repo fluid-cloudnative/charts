@@ -2,17 +2,8 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: dataset-controller
+  name: vineyardruntime-controller
 rules:
-  - apiGroups:
-    - ""
-    resources:
-    - persistentvolumes
-    - persistentvolumeclaims
-    verbs:
-    - get
-    - list
-    - watch
   - apiGroups:
     - ""
     resources:
@@ -22,87 +13,81 @@ rules:
     - list
     - watch
   - apiGroups:
-      - batch
+    - ""
     resources:
-      - jobs
-      - jobs/status
-      - cronjobs
-      - cronjobs/status
+    - configmaps
     verbs:
-      - get
-      - list
-      - watch
-      - create
-      - update
-      - delete
+    - get
+    - list
+    - watch
+    - create
+    - update
+    - delete
   - apiGroups:
-      - ""
+    - ""
     resources:
-      - configmaps
+    - persistentvolumeclaims
     verbs:
-      - get
-      - list
-      - watch
-      - create
-      - delete
-      - update
+    - get
+    - list
+    - watch
+    - create
+    - update
+    - delete
   - apiGroups:
-      - ""
+    - ""
     resources:
-      - services
+    - persistentvolumes
     verbs:
-      - create
-      - get
-      - delete
+    - get
+    - list
+    - watch
+    - create
+    - delete
   - apiGroups:
-      - ""
+    - ""
     resources:
-      - pods
+    - pods
     verbs:
-      - get
-      - list
-      - watch
+    - create
+    - delete
+    - get
+    - list
+    - watch
   - apiGroups:
-      - ""
+    - ""
     resources:
-      - pods/exec
+    - nodes
     verbs:
-      - create
+    - get
+    - list
+    - watch
+    - patch
   - apiGroups:
-      - ""
+    - ""
     resources:
-      - events
+    - events
     verbs:
-      - create
-      - patch
+    - create
+    - patch
 {{- template "fluid.helmDriver.rbacs" . }}
+  - apiGroups:
+    - ""
+    resources:
+    - services
+    verbs:
+    - create
+    - delete
+    - list
+    - watch
+    - get 
   - apiGroups:
       - data.fluid.io
     resources:
-      - datamigrates
-      - datamigrates/status
-      - dataloads
-      - dataloads/status
-      - databackups
-      - databackups/status
-      - dataprocesses
-      - dataprocesses/status
-      - datasets
-      - datasets/status
-      - alluxioruntimes
-      - alluxioruntimes/status
-      - jindoruntimes
-      - jindoruntimes/status
-      - goosefsruntimes
-      - goosefsruntimes/status
-      - juicefsruntimes
-      - juicefsruntimes/status
-      - thinruntimes
-      - thinruntimes/status
-      - efcruntimes
-      - efcruntimes/status
       - vineyardruntimes
+      - datasets
       - vineyardruntimes/status
+      - datasets/status
     verbs:
       - get
       - list
@@ -126,24 +111,12 @@ rules:
       - update
       - patch
       - delete
-  - apiGroups:
-      - apps
-    resources:
-      - deployments
-      - deployments/scale
-      - deployments/status
-    verbs:
-      - 'get'
-      - 'list'
-      - 'watch'
-      - 'update'
-      - 'patch'
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   namespace: {{ include "fluid.namespace" . }}
-  name: dataset-controller
+  name: vineyardruntime-controller
 rules:
   - apiGroups:
       - coordination.k8s.io
@@ -156,7 +129,7 @@ rules:
     resources:
       - leases
     resourceNames:
-      - dataset.data.fluid.io
+      - vineyard.data.fluid.io
     verbs:
       - get
       - list
@@ -168,32 +141,32 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: dataset-clusterrolebinding
+  name: vineyardruntime-clusterrolebinding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: dataset-controller
+  name: vineyardruntime-controller
 subjects:
   - kind: ServiceAccount
-    name: dataset-controller
+    name: vineyardruntime-controller
     namespace: {{ include "fluid.namespace" . }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: dataset-controller
+  name: vineyardruntime-controller
   namespace: {{ include "fluid.namespace" . }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: dataset-controller
+  name: vineyardruntime-controller
 subjects:
   - kind: ServiceAccount
-    name: dataset-controller
+    name: vineyardruntime-controller
     namespace: {{ include "fluid.namespace" . }}
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: dataset-controller
+  name: vineyardruntime-controller
   namespace: {{ include "fluid.namespace" . }}
