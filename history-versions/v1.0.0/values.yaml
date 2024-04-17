@@ -1,0 +1,211 @@
+# Default values for fluid.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+workdir: /tmp
+
+# Change the helm backend storage driver used by Fluid's controllers. 
+# For now, only "configmap" and "secret" are supported.
+helmDriver: configmap
+
+crdUpgrade:
+  enabled: true
+  # This sets the time-to-live (TTL) for crd-upgrade jobs. Default is 259200 seconds (3 days).
+  ttlSecondsAfterFinished: 259200 
+  image: fluidcloudnative/fluid-crd-upgrader:v1.0.0-31f5433
+
+##  if unspecified, will use built-in variable `.Release.Namespace`.
+namespace: fluid-system
+
+image:
+  imagePullSecrets: []
+
+dataset:
+  replicas: 1
+  tolerations:
+    - operator: Exists
+  controller:
+    image: fluidcloudnative/dataset-controller:v1.0.0-31f5433
+
+csi:
+  tolerations:
+    - operator: Exists
+  featureGates: "FuseRecovery=false"
+  config:
+    hostNetwork: false
+  registrar:
+    image: fluidcloudnative/csi-node-driver-registrar:v2.3.0
+  plugins:
+    image: fluidcloudnative/fluid-csi:v1.0.0-31f5433
+  kubelet:
+    kubeConfigFile: /etc/kubernetes/kubelet.conf
+    certDir: /var/lib/kubelet/pki
+    rootDir: /var/lib/kubelet
+  pruneFs: fuse.alluxio-fuse,fuse.jindofs-fuse,fuse.juicefs,fuse.goosefs-fuse,ossfs,alifuse.aliyun-alinas-efc
+  recoverWarningThreshold: 50
+  # default method is "bindMount", "symlink" is also support
+  # Notice: if use nodePublishMethod symlink, fuse recovery is not support
+  nodePublishMethod: bindMount
+  hostPID: false
+
+runtime:
+  criticalFusePod: true
+  syncRetryDuration: 15s
+  mountRoot: /runtime-mnt
+  alluxio:
+    replicas: 1
+    tolerations:
+      - operator: Exists
+    runtimeWorkers: 3
+    portRange: 20000-26000
+    portAllocatePolicy: random
+    enabled: false
+    init:
+      image: fluidcloudnative/init-users:v0.9.0
+    controller:
+      image: fluidcloudnative/alluxioruntime-controller:v1.0.0-31f5433
+    runtime:
+      image: alluxio/alluxio-dev:2.9.0
+    fuse:
+      image: alluxio/alluxio-dev:2.9.0
+    mountConfigStorage: configmap
+  jindo:
+    replicas: 1
+    tolerations:
+      - operator: Exists
+    runtimeWorkers: 3
+    portRange: 18000-19999
+    portAllocatePolicy: random
+    enabled: false
+    engine: jindocache
+    queryUfsTotal: true
+    smartdata:
+      image: registry.cn-shanghai.aliyuncs.com/jindofs/smartdata:6.2.0
+    fuse:
+      image: registry.cn-shanghai.aliyuncs.com/jindofs/jindo-fuse:6.2.0
+    controller:
+      image: fluidcloudnative/jindoruntime-controller:v1.0.0-31f5433
+    init:
+      portCheck:
+        enabled: false
+      image: fluidcloudnative/init-users:v0.9.0
+  goosefs:
+    replicas: 1
+    tolerations:
+      - operator: Exists
+    runtimeWorkers: 3
+    portRange: 26000-32000
+    portAllocatePolicy: random
+    enabled: false
+    init:
+      image: fluidcloudnative/init-users:v0.9.0
+    controller:
+      image: fluidcloudnative/goosefsruntime-controller:v1.0.0-31f5433
+    runtime:
+      image: ccr.ccs.tencentyun.com/qcloud/goosefs:v1.2.0
+    fuse:
+      image: ccr.ccs.tencentyun.com/qcloud/goosefs-fuse:v1.2.0
+  juicefs:
+    replicas: 1
+    tolerations:
+      - operator: Exists
+    enabled: false
+    runtimeWorkers: 3
+    controller:
+      image: fluidcloudnative/juicefsruntime-controller:v1.0.0-31f5433
+    fuse:
+      ceimage: juicedata/juicefs-fuse:ce-v1.1.0-rc1
+      eeimage: juicedata/juicefs-fuse:ee-4.9.16
+  thin:
+    replicas: 1
+    tolerations:
+      - operator: Exists
+    enabled: false
+    controller:
+      image: fluidcloudnative/thinruntime-controller:v1.0.0-31f5433
+    fuse:
+      configStorage: configmap
+  efc:
+    replicas: 1
+    tolerations:
+      - operator: Exists
+    enabled: false
+    controller:
+      image: fluidcloudnative/efcruntime-controller:v1.0.0-31f5433
+      imagePullPolicy: Always
+    init:
+      image: registry.cn-zhangjiakou.aliyuncs.com/nascache/init-alifuse:v1.2.2-19dcee9
+    master:
+      image: registry.cn-zhangjiakou.aliyuncs.com/nascache/efc-master:v1.2.2-19dcee9
+    worker:
+      image: registry.cn-zhangjiakou.aliyuncs.com/nascache/efc-worker:v1.2.2-19dcee9
+    fuse:
+      image: registry.cn-zhangjiakou.aliyuncs.com/nascache/efc-fuse:v1.2.2-19dcee9
+  vineyard:
+    replicas: 1
+    tolerations:
+      - operator: Exists
+    enabled: false
+    controller:
+      image: fluidcloudnative/vineyardruntime-controller:v1.0.0-31f5433
+      imagePullPolicy: Always
+    master:
+      image: bitnami/etcd:3.5.10
+    worker:
+      image: vineyardcloudnative/vineyardd:v0.21.5
+    fuse:
+      image: vineyardcloudnative/vineyard-fluid-fuse:v0.21.5
+
+webhook:
+  enabled: true
+  image: fluidcloudnative/fluid-webhook:v1.0.0-31f5433
+  replicas: 1
+  timeoutSeconds: 15
+  reinvocationPolicy: IfNeeded
+  tolerations:
+    - operator: Exists
+  # if configmap `webhook-plugins` exists and not want to replace the content, set this to false.
+  forceReplacePluginsProfile: false
+  pluginsProfile:
+    plugins:
+      # serverful webhook plugins
+      serverful:
+        withDataset:
+          - RequireNodeWithFuse
+          - NodeAffinityWithCache
+          - MountPropagationInjector
+        withoutDataset:
+          - PreferNodesWithoutCache
+      # serverless webhook plugins
+      serverless:
+        withDataset:
+          - FuseSidecar
+        withoutDataset: []
+    pluginConfig:
+      - name: NodeAffinityWithCache
+        # plugin args is a serialized yaml string.
+        args: |
+          preferred:
+            # fluid.io/fuse is a fluid built-in affinity, prefer to schedule pods to nodes with runtime fuse pods.
+            # - name: fluid.io/fuse
+            #   weight: 100
+            # fluid.io/node is a fluid built-in affinity, prefer to schedule pods to nodes with runtime worker pods.
+            - name: fluid.io/node
+              weight: 100
+            # runtime worker's zone label name, can be changed according to k8s environment.
+            - name: topology.kubernetes.io/zone
+              weight: 50
+            # runtime worker's region label name, can be changed according to k8s environment.
+            - name: topology.kubernetes.io/region
+              weight: 20
+          # used when app pod with label fluid.io/dataset.{dataset name}.sched set true
+          required:
+            - fluid.io/node
+
+fluidapp:
+  enabled: true
+  replicas: 1
+  tolerations:
+    - operator: Exists
+  controller:
+    image: fluidcloudnative/application-controller:v1.0.0-31f5433
