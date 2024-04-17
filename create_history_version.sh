@@ -1,10 +1,11 @@
 #!/bin/bash
 
-set -ex # Set to stop execution on error
+set -e # Set to stop execution on error
 
 charts_dir="charts"
 fluid_dir="$charts_dir/fluid"
 fluid_source_dir="../fluid/$charts_dir/fluid"
+history_dir="history-versions"
 
 # Ensure the current directory is the 'charts' directory
 if [ "$(basename $(pwd))" != "$charts_dir" ]; then
@@ -18,12 +19,17 @@ if [ ! -d "$charts_dir" ]; then
   exit 1
 fi
 
-
 # Get the git branch of current working directory
 branch=$(git symbolic-ref --short HEAD)
 
 # Extract the version number from branch name
 version=$(echo $branch | sed 's/.*-\([0-9]\.[0-9]\.[0-9].*\)/\1/')
+
+# Check if there is no version number in branch name
+if [ -z "$version" ]; then
+  echo "Error: No version number found in branch name."
+  exit 1
+fi
 
 # Check whether the version number is valid
 if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9_\.]+)*$ ]]; then
@@ -31,4 +37,24 @@ if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9_\.]+)*$ ]]; then
   exit 1
 fi
 
-cp -r $fluid_dir history-versions/v$version
+# Check if the historical directory exists, if not, create it.
+if [ ! -d "$history_dir" ]; then
+  mkdir -p $history_dir
+fi
+
+# If --force option is used, remove any existing directory. Otherwise, stop the operation.
+if [ "$1" == "--force" ]; then
+  if [ -d "$history_dir/v$version" ]; then
+    echo "Warning: Directory $history_dir/v$version already exists, it will be removed due to the --force option."
+    rm -rf $history_dir/v$version
+  fi
+else
+  if [ -d "$history_dir/v$version" ]; then
+    echo "Error: Directory $history_dir/v$version already exists. Use the --force option to overwrite it."
+    exit 1
+  fi
+fi
+
+# Copy files
+cp -r $fluid_dir $history_dir/v$version
+echo "Copied fluid directory to $history_dir/v$version."
