@@ -32,7 +32,7 @@ if [ -z "$version" ]; then
 fi
 
 # Check whether the version number is valid
-if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9_\.]+)*$ ]]; then
+if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9_\.]+)?$ ]]; then
   echo "Version $version is not valid, it should be in format of 0.0.0 or 0.0.0-alpha.0 and should not contain any special characters."
   exit 1
 fi
