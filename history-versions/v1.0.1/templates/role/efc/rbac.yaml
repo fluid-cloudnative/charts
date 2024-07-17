@@ -2,7 +2,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: vineyardruntime-controller
+  name: efcruntime-controller
 rules:
   - apiGroups:
     - ""
@@ -12,6 +12,7 @@ rules:
     - get
     - list
     - watch
+    - create
   - apiGroups:
     - ""
     resources:
@@ -55,6 +56,12 @@ rules:
   - apiGroups:
     - ""
     resources:
+    - pods/exec
+    verbs:
+    - create
+  - apiGroups:
+    - ""
+    resources:
     - nodes
     verbs:
     - get
@@ -82,9 +89,9 @@ rules:
   - apiGroups:
       - data.fluid.io
     resources:
-      - vineyardruntimes
+      - efcruntimes
       - datasets
-      - vineyardruntimes/status
+      - efcruntimes/status
       - datasets/status
     verbs:
       - get
@@ -114,7 +121,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   namespace: {{ include "fluid.namespace" . }}
-  name: vineyardruntime-controller
+  name: efcruntime-controller
 rules:
   - apiGroups:
       - coordination.k8s.io
@@ -127,7 +134,7 @@ rules:
     resources:
       - leases
     resourceNames:
-      - vineyard.data.fluid.io
+      - efc.data.fluid.io
     verbs:
       - get
       - list
@@ -139,32 +146,32 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: vineyardruntime-clusterrolebinding
+  name: efcruntime-clusterrolebinding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: vineyardruntime-controller
+  name: efcruntime-controller
 subjects:
   - kind: ServiceAccount
-    name: vineyardruntime-controller
+    name: efcruntime-controller
     namespace: {{ include "fluid.namespace" . }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: vineyardruntime-controller
+  name: efcruntime-rolebinding
   namespace: {{ include "fluid.namespace" . }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: vineyardruntime-controller
+  name: efcruntime-controller
 subjects:
   - kind: ServiceAccount
-    name: vineyardruntime-controller
+    name: efcruntime-controller
     namespace: {{ include "fluid.namespace" . }}
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: vineyardruntime-controller
+  name: efcruntime-controller
   namespace: {{ include "fluid.namespace" . }}

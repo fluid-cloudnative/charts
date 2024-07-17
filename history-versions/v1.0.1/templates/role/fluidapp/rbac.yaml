@@ -2,105 +2,60 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: vineyardruntime-controller
+  name: fluidapp-controller
 rules:
   - apiGroups:
-    - ""
+      - ""
     resources:
-    - namespaces
+      - events
     verbs:
-    - get
-    - list
-    - watch
+      - get
+      - watch
+      - create
+  {{- if eq (include "fluid.dataflowAffinity.enabled" . ) "true" }}
   - apiGroups:
-    - ""
+      - ""
     resources:
-    - configmaps
-    verbs:
-    - get
-    - list
-    - watch
-    - create
-    - update
-    - delete
-  - apiGroups:
-    - ""
-    resources:
-    - persistentvolumeclaims
-    verbs:
-    - get
-    - list
-    - watch
-    - create
-    - update
-    - delete
-  - apiGroups:
-    - ""
-    resources:
-    - persistentvolumes
-    verbs:
-    - get
-    - list
-    - watch
-    - create
-    - delete
-  - apiGroups:
-    - ""
-    resources:
-    - pods
-    verbs:
-    - get
-    - list
-    - watch
-  - apiGroups:
-    - ""
-    resources:
-    - nodes
-    verbs:
-    - get
-    - list
-    - watch
-    - patch
-  - apiGroups:
-    - ""
-    resources:
-    - events
-    verbs:
-    - create
-    - patch
-{{- template "fluid.helmDriver.rbacs" . }}
-  - apiGroups:
-    - ""
-    resources:
-    - services
-    verbs:
-    - create
-    - delete
-    - list
-    - watch
-    - get 
-  - apiGroups:
-      - data.fluid.io
-    resources:
-      - vineyardruntimes
-      - datasets
-      - vineyardruntimes/status
-      - datasets/status
+      - nodes
     verbs:
       - get
       - list
       - watch
-      - create
-      - update
-      - patch
-      - delete
   - apiGroups:
-      - apps
+      - batch
     resources:
-      - daemonsets
-      - statefulsets
-      - daemonsets/status
-      - statefulsets/status
+      - jobs
+    verbs:
+      - get
+      - list
+      - watch
+      - update
+  {{- end }}
+  - apiGroups:
+      - ""
+    resources:
+      - pods/exec
+    verbs:
+      - get
+      - create
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
     verbs:
       - get
       - list
@@ -114,7 +69,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   namespace: {{ include "fluid.namespace" . }}
-  name: vineyardruntime-controller
+  name: fluidapp-controller
 rules:
   - apiGroups:
       - coordination.k8s.io
@@ -127,7 +82,7 @@ rules:
     resources:
       - leases
     resourceNames:
-      - vineyard.data.fluid.io
+      - fluidapp.data.fluid.io
     verbs:
       - get
       - list
@@ -139,32 +94,32 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: vineyardruntime-clusterrolebinding
+  name: fluidapp-clusterrolebinding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: vineyardruntime-controller
+  name: fluidapp-controller
 subjects:
   - kind: ServiceAccount
-    name: vineyardruntime-controller
+    name: fluidapp-controller
     namespace: {{ include "fluid.namespace" . }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: vineyardruntime-controller
+  name: fluidapp-controller
   namespace: {{ include "fluid.namespace" . }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: vineyardruntime-controller
+  name: fluidapp-controller
 subjects:
   - kind: ServiceAccount
-    name: vineyardruntime-controller
+    name: fluidapp-controller
     namespace: {{ include "fluid.namespace" . }}
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: vineyardruntime-controller
+  name: fluidapp-controller
   namespace: {{ include "fluid.namespace" . }}

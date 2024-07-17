@@ -2,7 +2,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: vineyardruntime-controller
+  name: goosefsruntime-controller
 rules:
   - apiGroups:
     - ""
@@ -55,6 +55,12 @@ rules:
   - apiGroups:
     - ""
     resources:
+    - pods/exec
+    verbs:
+    - create
+  - apiGroups:
+    - ""
+    resources:
     - nodes
     verbs:
     - get
@@ -68,7 +74,17 @@ rules:
     verbs:
     - create
     - patch
-{{- template "fluid.helmDriver.rbacs" . }}
+  - apiGroups:
+    - ""
+    resources:
+    - secrets
+    verbs:
+    - list
+    - watch
+    - get
+    - create
+    - delete
+    - update
   - apiGroups:
     - ""
     resources:
@@ -82,9 +98,11 @@ rules:
   - apiGroups:
       - data.fluid.io
     resources:
-      - vineyardruntimes
+      - goosefsdataloads
+      - goosefsruntimes
       - datasets
-      - vineyardruntimes/status
+      - goosefsdataloads/status
+      - goosefsruntimes/status
       - datasets/status
     verbs:
       - get
@@ -114,7 +132,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   namespace: {{ include "fluid.namespace" . }}
-  name: vineyardruntime-controller
+  name: goosefsruntime-controller
 rules:
   - apiGroups:
       - coordination.k8s.io
@@ -127,7 +145,7 @@ rules:
     resources:
       - leases
     resourceNames:
-      - vineyard.data.fluid.io
+      - goosefs.data.fluid.io
     verbs:
       - get
       - list
@@ -139,32 +157,32 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: vineyardruntime-clusterrolebinding
+  name: goosefsruntime-clusterrolebinding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: vineyardruntime-controller
+  name: goosefsruntime-controller
 subjects:
   - kind: ServiceAccount
-    name: vineyardruntime-controller
+    name: goosefsruntime-controller
     namespace: {{ include "fluid.namespace" . }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: vineyardruntime-controller
+  name: goosefsruntime-rolebinding
   namespace: {{ include "fluid.namespace" . }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: vineyardruntime-controller
+  name: goosefsruntime-controller
 subjects:
   - kind: ServiceAccount
-    name: vineyardruntime-controller
+    name: goosefsruntime-controller
     namespace: {{ include "fluid.namespace" . }}
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: vineyardruntime-controller
+  name: goosefsruntime-controller
   namespace: {{ include "fluid.namespace" . }}

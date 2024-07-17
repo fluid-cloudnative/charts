@@ -2,7 +2,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: vineyardruntime-controller
+  name: thinruntime-controller
 rules:
   - apiGroups:
     - ""
@@ -22,6 +22,7 @@ rules:
     - watch
     - create
     - update
+    - patch
     - delete
   - apiGroups:
     - ""
@@ -33,6 +34,7 @@ rules:
     - watch
     - create
     - update
+    - patch
     - delete
   - apiGroups:
     - ""
@@ -52,6 +54,13 @@ rules:
     - get
     - list
     - watch
+    - update
+  - apiGroups:
+    - ""
+    resources:
+    - pods/exec
+    verbs:
+    - create
   - apiGroups:
     - ""
     resources:
@@ -78,13 +87,20 @@ rules:
     - delete
     - list
     - watch
-    - get 
+    - get
   - apiGroups:
       - data.fluid.io
     resources:
-      - vineyardruntimes
+      - alluxioruntimes
+      - jindoruntimes
+      - juicefsruntimes
+      - goosefsruntimes
+      - efcruntimes
+      - thinruntimes
+      - thinruntimeprofiles
       - datasets
-      - vineyardruntimes/status
+      - thinruntimes/status
+      - thinruntimeprofiles/status
       - datasets/status
     verbs:
       - get
@@ -93,6 +109,25 @@ rules:
       - create
       - update
       - patch
+      - delete
+  - apiGroups:
+      - ""
+    resources:
+      - serviceaccounts
+    verbs:
+      - create
+      - list
+      - get
+      - delete
+  - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
+      - clusterroles
+      - clusterrolebindings
+    verbs:
+      - create
+      - list
+      - get
       - delete
   - apiGroups:
       - apps
@@ -114,7 +149,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   namespace: {{ include "fluid.namespace" . }}
-  name: vineyardruntime-controller
+  name: thinruntime-controller
 rules:
   - apiGroups:
       - coordination.k8s.io
@@ -127,7 +162,7 @@ rules:
     resources:
       - leases
     resourceNames:
-      - vineyard.data.fluid.io
+      - thin.data.fluid.io
     verbs:
       - get
       - list
@@ -139,32 +174,32 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: vineyardruntime-clusterrolebinding
+  name: thinruntime-clusterrolebinding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: vineyardruntime-controller
+  name: thinruntime-controller
 subjects:
   - kind: ServiceAccount
-    name: vineyardruntime-controller
+    name: thinruntime-controller
     namespace: {{ include "fluid.namespace" . }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: vineyardruntime-controller
+  name: thinruntime-rolebinding
   namespace: {{ include "fluid.namespace" . }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: vineyardruntime-controller
+  name: thinruntime-controller
 subjects:
   - kind: ServiceAccount
-    name: vineyardruntime-controller
+    name: thinruntime-controller
     namespace: {{ include "fluid.namespace" . }}
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: vineyardruntime-controller
+  name: thinruntime-controller
   namespace: {{ include "fluid.namespace" . }}

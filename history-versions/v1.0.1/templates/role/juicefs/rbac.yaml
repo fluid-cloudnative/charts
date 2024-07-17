@@ -2,7 +2,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: vineyardruntime-controller
+  name: juicefsruntime-controller
 rules:
   - apiGroups:
     - ""
@@ -51,7 +51,16 @@ rules:
     verbs:
     - get
     - list
+    - create
     - watch
+  - apiGroups:
+    - ""
+    resources:
+    - pods/exec
+    verbs:
+    - create
+    - get
+    - list
   - apiGroups:
     - ""
     resources:
@@ -82,9 +91,9 @@ rules:
   - apiGroups:
       - data.fluid.io
     resources:
-      - vineyardruntimes
+      - juicefsruntimes
       - datasets
-      - vineyardruntimes/status
+      - juicefsruntimes/status
       - datasets/status
     verbs:
       - get
@@ -93,6 +102,25 @@ rules:
       - create
       - update
       - patch
+      - delete
+  - apiGroups:
+      - ""
+    resources:
+      - serviceaccounts
+    verbs:
+      - create
+      - list
+      - get
+      - delete
+  - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
+      - roles
+      - rolebindings
+    verbs:
+      - create
+      - list
+      - get
       - delete
   - apiGroups:
       - apps
@@ -114,7 +142,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   namespace: {{ include "fluid.namespace" . }}
-  name: vineyardruntime-controller
+  name: juicefsruntime-controller
 rules:
   - apiGroups:
       - coordination.k8s.io
@@ -127,7 +155,7 @@ rules:
     resources:
       - leases
     resourceNames:
-      - vineyard.data.fluid.io
+      - juicefs.data.fluid.io
     verbs:
       - get
       - list
@@ -139,32 +167,32 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: vineyardruntime-clusterrolebinding
+  name: juicefsruntime-clusterrolebinding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: vineyardruntime-controller
+  name: juicefsruntime-controller
 subjects:
   - kind: ServiceAccount
-    name: vineyardruntime-controller
+    name: juicefsruntime-controller
     namespace: {{ include "fluid.namespace" . }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: vineyardruntime-controller
+  name: juicefsruntime-rolebinding
   namespace: {{ include "fluid.namespace" . }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: vineyardruntime-controller
+  name: juicefsruntime-controller
 subjects:
   - kind: ServiceAccount
-    name: vineyardruntime-controller
+    name: juicefsruntime-controller
     namespace: {{ include "fluid.namespace" . }}
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: vineyardruntime-controller
+  name: juicefsruntime-controller
   namespace: {{ include "fluid.namespace" . }}
