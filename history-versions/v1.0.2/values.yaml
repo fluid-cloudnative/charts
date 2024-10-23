@@ -14,7 +14,7 @@ image:
 # Default registry, namespace and version tag for images managed by fluid
 imagePrefix: &defaultImagePrefix fluidcloudnative
 # imagePrefix: &defaultImagePrefix registry.aliyuncs.com/fluid
-version: &defaultVersion v1.0.3-ccdf3a9
+version: &defaultVersion v1.0.2-41eefb6
 
 crdUpgrade:
   enabled: true
@@ -31,14 +31,6 @@ dataset:
   replicas: 1
   tolerations:
     - operator: Exists
-  resources: ~
-  # resources:
-  #   requests:
-  #     cpu: 500m
-  #     memory: 256Mi
-  #   limits:
-  #     cpu: 1000m
-  #     memory: 512Mi
   controller:
     imagePrefix: *defaultImagePrefix
     imageName: dataset-controller
@@ -77,14 +69,6 @@ runtime:
     replicas: 1
     tolerations:
       - operator: Exists
-    resources: ~
-    # resources:
-    #   requests:
-    #     cpu: 500m
-    #     memory: 256Mi
-    #   limits:
-    #     cpu: 1000m
-    #     memory: 512Mi
     runtimeWorkers: 3
     portRange: 20000-26000
     portAllocatePolicy: random
@@ -110,14 +94,6 @@ runtime:
     replicas: 1
     tolerations:
       - operator: Exists
-    resources: ~
-    # resources:
-    #   requests:
-    #     cpu: 500m
-    #     memory: 256Mi
-    #   limits:
-    #     cpu: 1000m
-    #     memory: 512Mi
     runtimeWorkers: 3
     portRange: 18000-19999
     portAllocatePolicy: random
@@ -146,14 +122,6 @@ runtime:
     replicas: 1
     tolerations:
       - operator: Exists
-    resources: ~
-    # resources:
-    #   requests:
-    #     cpu: 500m
-    #     memory: 256Mi
-    #   limits:
-    #     cpu: 1000m
-    #     memory: 512Mi
     runtimeWorkers: 3
     portRange: 26000-32000
     portAllocatePolicy: random
@@ -178,14 +146,6 @@ runtime:
     replicas: 1
     tolerations:
       - operator: Exists
-    resources: ~
-    # resources:
-    #   requests:
-    #     cpu: 500m
-    #     memory: 256Mi
-    #   limits:
-    #     cpu: 1000m
-    #     memory: 512Mi
     enabled: false
     runtimeWorkers: 3
     controller:
@@ -203,14 +163,6 @@ runtime:
     replicas: 1
     tolerations:
       - operator: Exists
-    resources: ~
-    # resources:
-    #   requests:
-    #     cpu: 500m
-    #     memory: 256Mi
-    #   limits:
-    #     cpu: 1000m
-    #     memory: 512Mi
     enabled: false
     controller:
       imagePrefix: *defaultImagePrefix
@@ -222,14 +174,6 @@ runtime:
     replicas: 1
     tolerations:
       - operator: Exists
-    resources: ~
-    # resources:
-    #   requests:
-    #     cpu: 500m
-    #     memory: 256Mi
-    #   limits:
-    #     cpu: 1000m
-    #     memory: 512Mi
     enabled: false
     controller:
       imagePrefix: *defaultImagePrefix
@@ -257,14 +201,6 @@ runtime:
     portRange: 32000-34000
     tolerations:
       - operator: Exists
-    resources: ~
-    # resources:
-    #   requests:
-    #     cpu: 500m
-    #     memory: 256Mi
-    #   limits:
-    #     cpu: 1000m
-    #     memory: 512Mi
     enabled: false
     controller:
       imagePrefix: *defaultImagePrefix
@@ -294,15 +230,6 @@ webhook:
   reinvocationPolicy: IfNeeded
   tolerations:
     - operator: Exists
-  resources: ~
-  # resources:
-  #   requests:
-  #     cpu: 500m
-  #     memory: 256Mi
-  #   limits:
-  #     cpu: 1000m
-  #     memory: 512Mi
-
   # if configmap `webhook-plugins` exists and not want to replace the content, set this to false.
   forceReplacePluginsProfile: false
   pluginsProfile:
@@ -349,14 +276,6 @@ fluidapp:
   replicas: 1
   tolerations:
     - operator: Exists
-  resources: ~
-  # resources:
-  #   requests:
-  #     cpu: 500m
-  #     memory: 256Mi
-  #   limits:
-  #     cpu: 1000m
-  #     memory: 512Mi
   controller:
     imagePrefix: *defaultImagePrefix
     imageName: application-controller

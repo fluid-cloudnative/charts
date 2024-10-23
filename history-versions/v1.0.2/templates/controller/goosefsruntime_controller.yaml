@@ -29,14 +29,22 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: goosefsruntime-controller
-      {{ include "fluid.controlplane.affinity" . | nindent 6}}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: type
+                operator: NotIn
+                values:
+                - virtual-kubelet
       {{- if .Values.runtime.goosefs.tolerations }}
       tolerations:
 {{ toYaml .Values.runtime.goosefs.tolerations | indent 6 }}
       {{- end }}
       #hostNetwork: true
       containers:
-      - image: {{ include "fluid.controlplane.imageTransform" (list .Values.runtime.goosefs.controller.imagePrefix .Values.runtime.goosefs.controller.imageName .Values.runtime.goosefs.controller.imageTag . ) }}
+      - image: {{ include "fluid.controlplane.imageTransform" (list .Values.runtime.goosefs.controller.imagePrefix .Values.runtime.goosefs.controller.imageName .Values.runtime.goosefs.controller.imageTag) }}
         imagePullPolicy: Always
         name: manager
         command: ["goosefsruntime-controller", "start"]
@@ -55,15 +63,15 @@ spec:
           {{- end }}
           {{- if .Values.runtime.goosefs.init.imageName }}
           - name: DEFAULT_INIT_IMAGE_ENV
-            value: {{ include "fluid.runtime.imageTransform" (list .Values.runtime.goosefs.init.imagePrefix .Values.runtime.goosefs.init.imageName .Values.runtime.goosefs.init.imageTag . ) }}
+            value: {{ include "fluid.runtime.imageTransform" (list .Values.runtime.goosefs.init.imagePrefix .Values.runtime.goosefs.init.imageName .Values.runtime.goosefs.init.imageTag) }}
           {{- end }}
           {{- if .Values.runtime.goosefs.runtime.imageName }}
           - name: GOOSEFS_RUNTIME_IMAGE_ENV
-            value: {{ include "fluid.runtime.imageTransform" (list .Values.runtime.goosefs.runtime.imagePrefix .Values.runtime.goosefs.runtime.imageName .Values.runtime.goosefs.runtime.imageTag . ) }}
+            value: {{ include "fluid.runtime.imageTransform" (list .Values.runtime.goosefs.runtime.imagePrefix .Values.runtime.goosefs.runtime.imageName .Values.runtime.goosefs.runtime.imageTag) }}
           {{- end }}
           {{- if .Values.runtime.goosefs.fuse.imageName }}
           - name: GOOSEFS_FUSE_IMAGE_ENV
-            value: {{ include "fluid.runtime.imageTransform" (list .Values.runtime.goosefs.fuse.imagePrefix .Values.runtime.goosefs.fuse.imageName .Values.runtime.goosefs.fuse.imageTag . ) }}
+            value: {{ include "fluid.runtime.imageTransform" (list .Values.runtime.goosefs.fuse.imagePrefix .Values.runtime.goosefs.fuse.imageName .Values.runtime.goosefs.fuse.imageTag) }}
           {{- end }}
           {{- if .Values.runtime.mountRoot }}
           - name: MOUNT_ROOT
@@ -82,5 +90,10 @@ spec:
           name: metrics
           protocol: TCP
         resources:
-          {{- include "fluid.controlplane.resources" (list $ .Values.runtime.goosefs.resources) | nindent 10 }}
+          limits:
+            cpu: 100m
+            memory: 1536Mi
+          requests:
+            cpu: 100m
+            memory: 200Mi
       terminationGracePeriodSeconds: 10

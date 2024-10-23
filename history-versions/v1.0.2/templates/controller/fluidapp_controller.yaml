@@ -25,14 +25,22 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: fluidapp-controller
-      {{ include "fluid.controlplane.affinity" . | nindent 6}}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: type
+                    operator: NotIn
+                    values:
+                      - virtual-kubelet
       {{- if .Values.fluidapp.tolerations }}
       tolerations:
 {{ toYaml .Values.fluidapp.tolerations | indent 6 }}
       {{- end }}
       #hostNetwork: true
       containers:
-      - image: {{ include "fluid.controlplane.imageTransform" (list .Values.fluidapp.controller.imagePrefix .Values.fluidapp.controller.imageName .Values.fluidapp.controller.imageTag . ) }}
+      - image: {{ include "fluid.controlplane.imageTransform" (list .Values.fluidapp.controller.imagePrefix .Values.fluidapp.controller.imageName .Values.fluidapp.controller.imageTag) }}
         name: manager
         command: ["fluidapp-controller", "start"]
         args:
@@ -51,5 +59,10 @@ spec:
             name: metrics
             protocol: TCP
         resources:
-          {{- include "fluid.controlplane.resources" (list $ .Values.fluidapp.resources) | nindent 10 }}
+          limits:
+            cpu: 100m
+            memory: 1536Mi
+          requests:
+            cpu: 100m
+            memory: 200Mi
       terminationGracePeriodSeconds: 10
