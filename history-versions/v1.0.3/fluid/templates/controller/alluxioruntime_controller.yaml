@@ -1,0 +1,99 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alluxioruntime-controller
+  namespace: {{ include "fluid.namespace" . }}
+  labels:
+    control-plane: alluxioruntime-controller
+spec:
+  selector:
+    matchLabels:
+      control-plane: alluxioruntime-controller
+  {{ if .Values.runtime.alluxio.enabled -}}
+  replicas: {{ .Values.runtime.alluxio.replicas }}
+  {{- else }}
+  replicas: 0
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        control-plane: alluxioruntime-controller
+      annotations:
+      {{ if gt (.Values.runtime.alluxio.replicas | int) 1 -}}
+        controller.runtime.fluid.io/replicas: {{ .Values.runtime.alluxio.replicas | quote }}
+      {{- end }}
+    spec:
+      {{- with .Values.image.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: alluxioruntime-controller
+      {{ include "fluid.controlplane.affinity" . | nindent 6}}
+      {{- if .Values.runtime.alluxio.tolerations }}
+      tolerations:
+{{ toYaml .Values.runtime.alluxio.tolerations | indent 6}}
+      {{- end }}
+      #hostNetwork: true
+      containers:
+      - image: {{ include "fluid.controlplane.imageTransform" (list .Values.runtime.alluxio.controller.imagePrefix .Values.runtime.alluxio.controller.imageName .Values.runtime.alluxio.controller.imageTag . ) }}
+        name: manager
+        command: ["alluxioruntime-controller", "start"]
+        args:
+          - --development=false
+          - --runtime-node-port-range={{ .Values.runtime.alluxio.portRange }}
+          - --runtime-workers={{ .Values.runtime.alluxio.runtimeWorkers }}
+          - --pprof-addr=:6060
+          - --enable-leader-election
+          - --leader-election-namespace={{ include "fluid.namespace" . }}
+          - --port-allocate-policy={{ .Values.runtime.alluxio.portAllocatePolicy }}
+        env:
+          {{- if .Values.workdir }}
+          - name: FLUID_WORKDIR
+            value: {{ .Values.workdir | quote }}
+          {{- end }}
+          {{- if .Values.runtime.alluxio.init.imageName }}
+          - name: DEFAULT_INIT_IMAGE_ENV
+            value: {{ include "fluid.runtime.imageTransform" (list .Values.runtime.alluxio.init.imagePrefix .Values.runtime.alluxio.init.imageName .Values.runtime.alluxio.init.imageTag . ) }}
+          {{- end }}
+          {{- if .Values.runtime.alluxio.runtime.imageName }}
+          - name: ALLUXIO_RUNTIME_IMAGE_ENV
+            value: {{ include "fluid.runtime.imageTransform" (list .Values.runtime.alluxio.runtime.imagePrefix .Values.runtime.alluxio.runtime.imageName .Values.runtime.alluxio.runtime.imageTag . ) }}
+          {{- end }}
+          {{- if .Values.runtime.alluxio.fuse.imageName }}
+          - name: ALLUXIO_FUSE_IMAGE_ENV
+            value: {{ include "fluid.runtime.imageTransform" (list .Values.runtime.alluxio.fuse.imagePrefix .Values.runtime.alluxio.fuse.imageName .Values.runtime.alluxio.fuse.imageTag . ) }}
+          {{- end }}
+          {{- if .Values.runtime.mountRoot }}
+          - name: MOUNT_ROOT
+            value: {{ .Values.runtime.mountRoot | quote }}
+          {{- end }}
+          {{- if .Values.runtime.criticalFusePod }}
+          - name: CRITICAL_FUSE_POD
+            value: {{ ternary "true" "false" (semverCompare ">=1.16.0-0" .Capabilities.KubeVersion.Version) | quote }}
+          {{- end }}
+          {{- if .Values.runtime.syncRetryDuration }}
+          - name: FLUID_SYNC_RETRY_DURATION
+            value: {{ .Values.runtime.syncRetryDuration | quote }}
+          {{- end }}
+          {{- if .Values.image.imagePullSecrets }}
+          - name: IMAGE_PULL_SECRETS
+            {{- $secretList := list }}
+            {{- range .Values.image.imagePullSecrets }}
+              {{- range $name,$v := . }}
+                {{- $secretList = append $secretList $v }}
+              {{- end }}
+            {{- end }}
+            value: {{ join "," $secretList | quote }}
+          {{- end }}
+          - name: HELM_DRIVER
+            value: {{ template "fluid.helmDriver" .}}
+          - name: ALLUXIO_MOUNT_CONFIG_STORAGE
+            value: {{ .Values.runtime.alluxio.mountConfigStorage }}
+        ports:
+        - containerPort: 8080
+          name: metrics
+          protocol: TCP
+        resources:
+          {{- include "fluid.controlplane.resources" (list $ .Values.runtime.alluxio.resources) | nindent 10 }}
+      terminationGracePeriodSeconds: 10

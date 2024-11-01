@@ -1,0 +1,97 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: efcruntime-controller
+  namespace: {{ include "fluid.namespace" . }}
+  labels:
+    control-plane: efcruntime-controller
+spec:
+  selector:
+    matchLabels:
+      control-plane: efcruntime-controller
+  {{ if .Values.runtime.efc.enabled -}}
+  replicas: {{ .Values.runtime.efc.replicas }}
+  {{- else }}
+  replicas: 0
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        control-plane: efcruntime-controller
+      annotations:
+      {{ if gt (.Values.runtime.efc.replicas | int ) 1 -}}
+        controller.runtime.fluid.io/replicas: {{ .Values.runtime.efc.replicas | quote }}
+      {{- end }}
+    spec:
+      {{- with .Values.image.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: efcruntime-controller
+      {{ include "fluid.controlplane.affinity" . | nindent 6}}
+      {{- if .Values.runtime.efc.tolerations }}
+      tolerations:
+{{ toYaml .Values.runtime.efc.tolerations | indent 6 }}
+      {{- end }}
+      #hostNetwork: true
+      containers:
+      - image: {{ include "fluid.controlplane.imageTransform" (list .Values.runtime.efc.controller.imagePrefix .Values.runtime.efc.controller.imageName .Values.runtime.efc.controller.imageTag . ) }}
+        imagePullPolicy: {{ .Values.runtime.efc.controller.imagePullPolicy }}
+        name: manager
+        args:
+          - --development=true
+          - --pprof-addr=:6060
+          - --enable-leader-election
+          - --leader-election-namespace={{ include "fluid.namespace" . }}
+        command: ["efcruntime-controller", "start"]
+        env:
+          {{- if .Values.runtime.mountRoot }}
+          - name: MOUNT_ROOT
+            value: {{ .Values.runtime.mountRoot | quote }}
+          {{- end }}
+          {{- if .Values.runtime.criticalFusePod }}
+          - name: CRITICAL_FUSE_POD
+            value: {{ ternary "true" "false" (semverCompare ">=1.16.0-0" .Capabilities.KubeVersion.Version) | quote }}
+          {{- end }}
+          {{- if .Values.runtime.syncRetryDuration }}
+          - name: FLUID_SYNC_RETRY_DURATION
+            value: {{ .Values.runtime.syncRetryDuration | quote }}
+          {{- end }}
+          {{- if .Values.runtime.efc.init.imageName }}
+          - name: EFC_INIT_FUSE_IMAGE_ENV
+            value: {{ include "fluid.runtime.imageTransform" (list .Values.runtime.efc.init.imagePrefix .Values.runtime.efc.init.imageName .Values.runtime.efc.init.imageTag . ) }}
+          {{- end }}
+          {{- if .Values.runtime.efc.master.imageName }}
+          - name: EFC_MASTER_IMAGE_ENV
+            value: {{ include "fluid.runtime.imageTransform" (list .Values.runtime.efc.master.imagePrefix .Values.runtime.efc.master.imageName .Values.runtime.efc.master.imageTag . ) }}
+          {{- end }}
+          {{- if .Values.runtime.efc.worker.imageName }}
+          - name: EFC_WORKER_IMAGE_ENV
+            value: {{ include "fluid.runtime.imageTransform" (list .Values.runtime.efc.worker.imagePrefix .Values.runtime.efc.worker.imageName .Values.runtime.efc.worker.imageTag . ) }}
+          {{- end }}
+          {{- if .Values.runtime.efc.fuse.imageName }}
+          - name: EFC_FUSE_IMAGE_ENV
+            value: {{ include "fluid.runtime.imageTransform" (list .Values.runtime.efc.fuse.imagePrefix .Values.runtime.efc.fuse.imageName .Values.runtime.efc.fuse.imageTag . ) }}
+          - name: EFC_SESSMGR_IMAGE_ENV
+            value: {{ include "fluid.runtime.imageTransform" (list .Values.runtime.efc.fuse.imagePrefix .Values.runtime.efc.fuse.imageName .Values.runtime.efc.fuse.imageTag . ) }}
+          {{- end }}
+          - name: HELM_DRIVER
+            value: {{ template "fluid.helmDriver" . }}
+          {{- if .Values.image.imagePullSecrets }}
+          - name: IMAGE_PULL_SECRETS
+            {{- $secretList := list }}
+            {{- range .Values.image.imagePullSecrets }}
+              {{- range $name,$v := . }}
+                {{- $secretList = append $secretList $v }}
+              {{- end }}
+            {{- end }}
+            value: {{ join "," $secretList | quote }}
+          {{- end }}
+        ports:
+        - containerPort: 8080
+          name: metrics
+          protocol: TCP
+        resources:
+          {{- include "fluid.controlplane.resources" (list $ .Values.runtime.efc.resources) | nindent 10 }}
+      terminationGracePeriodSeconds: 10
