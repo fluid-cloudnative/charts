@@ -1,0 +1,80 @@
+# apiVersion: v1
+# kind: Namespace
+# metadata:
+#   labels:
+#     control-plane: controller
+#   name: fluid-system
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dataset-controller
+  namespace: {{ include "fluid.namespace" . }}
+  labels:
+    control-plane: dataset-controller
+spec:
+  selector:
+    matchLabels:
+      control-plane: dataset-controller
+  replicas: {{ .Values.dataset.replicas }}
+  template:
+    metadata:
+      labels:
+        control-plane: dataset-controller
+    spec:
+      {{- with .Values.image.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: dataset-controller
+      {{ include "fluid.controlplane.affinity" . | nindent 6}}
+      {{- if .Values.dataset.tolerations }}
+      tolerations:
+{{ toYaml .Values.dataset.tolerations | indent 6}}
+      {{- end }}
+      #hostNetwork: true
+      containers:
+      - image: {{ include "fluid.controlplane.imageTransform" (list .Values.dataset.controller.imagePrefix .Values.dataset.controller.imageName .Values.dataset.controller.imageTag . ) }}
+        name: manager
+        command: ["dataset-controller", "start"]
+        args:
+          - --development=false
+          - --pprof-addr=:6060
+          - --enable-leader-election
+          - --leader-election-namespace={{ include "fluid.namespace" . }}
+        env:
+          {{- if .Values.workdir }}
+          - name: FLUID_WORKDIR
+            value: {{ .Values.workdir | quote }}
+          {{- end }}
+          {{- if .Values.runtime.jindo.engine }}
+          - name: JINDO_ENGINE_TYPE
+            value: {{ .Values.runtime.jindo.engine | quote }}
+          {{- end }}
+          {{- if .Values.runtime.alluxio.runtime.imageName }}
+          - name: ALLUXIO_RUNTIME_IMAGE_ENV
+            value: {{ include "fluid.runtime.imageTransform" (list .Values.runtime.alluxio.runtime.imagePrefix .Values.runtime.alluxio.runtime.imageName .Values.runtime.alluxio.runtime.imageTag . ) }}
+          {{- end }}
+          {{- if .Values.image.imagePullSecrets }}
+          - name: IMAGE_PULL_SECRETS
+            {{- $secretList := list }}
+            {{- range .Values.image.imagePullSecrets }}
+              {{- range $name,$v := . }}
+                {{- $secretList = append $secretList $v }}
+              {{- end }}
+            {{- end }}
+            value: {{ join "," $secretList | quote }}
+          {{- end }}
+          - name: MY_POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: HELM_DRIVER
+            value: {{ template "fluid.helmDriver" .}}
+        ports:
+        - containerPort: 8080
+          name: metrics
+          protocol: TCP
+        resources:
+          {{- include "fluid.controlplane.resources" (list $ .Values.dataset.resources) | nindent 10 }}
+      terminationGracePeriodSeconds: 10
