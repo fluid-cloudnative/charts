@@ -1,0 +1,80 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vineyardruntime-controller
+  namespace: {{ include "fluid.namespace" . }}
+  labels:
+    control-plane: vineyardruntime-controller
+spec:
+  selector:
+    matchLabels:
+      control-plane: vineyardruntime-controller
+  {{ if .Values.runtime.vineyard.enabled -}}
+  replicas: {{ .Values.runtime.vineyard.replicas }}
+  {{- else }}
+  replicas: 0
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        control-plane: vineyardruntime-controller
+      annotations:
+      {{ if gt (.Values.runtime.vineyard.replicas | int) 1 -}}
+        controller.runtime.fluid.io/replicas: {{ .Values.runtime.vineyard.replicas | quote }}
+      {{- end }}
+    spec:
+      {{- with .Values.image.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: vineyardruntime-controller
+      {{ include "fluid.controlplane.affinity" . | nindent 6}}
+      {{- if .Values.runtime.vineyard.tolerations }}
+      tolerations:
+{{ toYaml .Values.runtime.vineyard.tolerations | indent 6 }}
+      {{- end }}
+      containers:
+      - image: {{ include "fluid.controlplane.imageTransform" (list .Values.runtime.vineyard.controller.imagePrefix .Values.runtime.vineyard.controller.imageName .Values.runtime.vineyard.controller.imageTag . ) }}
+        name: manager
+        command: ["vineyardruntime-controller", "start"]
+        args:
+          - --development=false
+          - --runtime-node-port-range={{ .Values.runtime.vineyard.portRange }}
+          - --pprof-addr=:6060
+          - --enable-leader-election
+          - --leader-election-namespace={{ include "fluid.namespace" . }}
+        env:
+        {{- if .Values.workdir }}
+        - name: FLUID_WORKDIR
+          value: {{ .Values.workdir | quote }}
+        {{- end }}
+        {{- if .Values.runtime.mountRoot }}
+        - name: MOUNT_ROOT
+          value: {{ .Values.runtime.mountRoot | quote }}
+        {{- end }}
+        {{- if .Values.runtime.vineyard.master.imageName }}
+        - name: VINEYARD_MASTER_IMAGE_ENV
+          value: {{ include "fluid.runtime.imageTransform" (list .Values.runtime.vineyard.master.imagePrefix .Values.runtime.vineyard.master.imageName .Values.runtime.vineyard.master.imageTag . ) }}
+        {{- end }}
+        {{- if .Values.runtime.vineyard.worker.imageName }}
+        - name: VINEYARD_WORKER_IMAGE_ENV
+          value: {{ include "fluid.runtime.imageTransform" (list .Values.runtime.vineyard.worker.imagePrefix .Values.runtime.vineyard.worker.imageName .Values.runtime.vineyard.worker.imageTag . ) }}
+        {{- end }}
+        {{- if .Values.runtime.vineyard.fuse.imageName }}
+        - name: VINEYARD_FUSE_IMAGE_ENV
+          value: {{ include "fluid.runtime.imageTransform" (list .Values.runtime.vineyard.fuse.imagePrefix .Values.runtime.vineyard.fuse.imageName .Values.runtime.vineyard.fuse.imageTag . ) }}
+        {{- end }}
+        {{- if .Values.runtime.syncRetryDuration }}
+        - name: FLUID_SYNC_RETRY_DURATION
+          value: {{ .Values.runtime.syncRetryDuration | quote }}
+        {{- end }}
+        - name: HELM_DRIVER
+          value: {{ template "fluid.helmDriver" . }}
+        ports:
+          - containerPort: 8080
+            name: metrics
+            protocol: TCP
+        resources:
+          {{- include "fluid.controlplane.resources" (list $ .Values.runtime.vineyard.resources) | nindent 10 }}
+      terminationGracePeriodSeconds: 10

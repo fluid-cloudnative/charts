@@ -1,0 +1,369 @@
+# Default values for fluid.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+workdir: /tmp
+
+# Change the helm backend storage driver used by Fluid's controllers. 
+# For now, only "configmap" and "secret" are supported.
+helmDriver: configmap
+
+image:
+  imagePullSecrets: []
+
+# Default registry, namespace and version tag for images managed by fluid
+imagePrefix: &defaultImagePrefix fluidcloudnative
+# imagePrefix: &defaultImagePrefix registry.aliyuncs.com/fluid
+version: &defaultVersion v1.0.5-7e917c7
+
+crdUpgrade:
+  enabled: true
+  # This sets the time-to-live (TTL) for crd-upgrade jobs. Default is 259200 seconds (3 days).
+  ttlSecondsAfterFinished: 259200 
+  imagePrefix: *defaultImagePrefix
+  imageName: fluid-crd-upgrader
+  imageTag: *defaultVersion
+
+##  if unspecified, will use built-in variable `.Release.Namespace`.
+namespace: fluid-system
+
+dataset:
+  replicas: 1
+  tolerations:
+    - operator: Exists
+  resources: ~
+  # resources:
+  #   requests:
+  #     cpu: 500m
+  #     memory: 256Mi
+  #   limits:
+  #     cpu: 1000m
+  #     memory: 512Mi
+  controller:
+    imagePrefix: *defaultImagePrefix
+    imageName: dataset-controller
+    imageTag: *defaultVersion
+
+csi:
+  tolerations:
+    - operator: Exists
+  featureGates: "FuseRecovery=false"
+  config:
+    hostNetwork: false
+  registrar:
+    imagePrefix: *defaultImagePrefix
+    imageName: csi-node-driver-registrar
+    imageTag: v2.3.0
+  plugins:
+    imagePrefix: *defaultImagePrefix
+    imageName: fluid-csi
+    imageTag: *defaultVersion
+  # Whether or not to borrow kubelet's config file to use node authorization to restrict CSI Plugin's permission
+  # See why Fluid's CSI Plugins need node-specific authorization at https://github.com/fluid-cloudnative/fluid/security/advisories/GHSA-93xx-cvmc-9w3v
+  # See node authorization at https://kubernetes.io/docs/reference/access-authn-authz/node/
+  useNodeAuthorization: true
+  kubelet:
+    kubeConfigFile: /etc/kubernetes/kubelet.conf
+    certDir: /var/lib/kubelet/pki
+    rootDir: /var/lib/kubelet
+  pruneFs: fuse.alluxio-fuse,fuse.jindofs-fuse,fuse.juicefs,fuse.goosefs-fuse,ossfs,alifuse.aliyun-alinas-efc
+  recoverWarningThreshold: 50
+  # default method is "bindMount", "symlink" is also support
+  # Notice: if use nodePublishMethod symlink, fuse recovery is not support
+  nodePublishMethod: bindMount
+  hostPID: false
+
+runtime:
+  criticalFusePod: true
+  syncRetryDuration: 15s
+  mountRoot: /runtime-mnt
+  alluxio:
+    replicas: 1
+    tolerations:
+      - operator: Exists
+    resources: ~
+    # resources:
+    #   requests:
+    #     cpu: 500m
+    #     memory: 256Mi
+    #   limits:
+    #     cpu: 1000m
+    #     memory: 512Mi
+    runtimeWorkers: 3
+    portRange: 20000-26000
+    portAllocatePolicy: random
+    enabled: false
+    init:
+      imagePrefix: *defaultImagePrefix
+      imageName: init-users
+      imageTag: v0.9.0
+    controller:
+      imagePrefix: *defaultImagePrefix
+      imageName: alluxioruntime-controller
+      imageTag: *defaultVersion
+    runtime:
+      imagePrefix: alluxio
+      imageName: alluxio-dev
+      imageTag: 2.9.0
+    fuse:
+      imagePrefix: alluxio
+      imageName: alluxio-dev
+      imageTag: 2.9.0
+    mountConfigStorage: configmap
+  jindo:
+    replicas: 1
+    tolerations:
+      - operator: Exists
+    resources: ~
+    # resources:
+    #   requests:
+    #     cpu: 500m
+    #     memory: 256Mi
+    #   limits:
+    #     cpu: 1000m
+    #     memory: 512Mi
+    runtimeWorkers: 3
+    portRange: 18000-19999
+    portAllocatePolicy: random
+    enabled: false
+    engine: jindocache
+    queryUfsTotal: true
+    smartdata:
+      imagePrefix: registry.cn-shanghai.aliyuncs.com/jindofs
+      imageName: smartdata
+      imageTag: 6.2.0
+    fuse:
+      imagePrefix: registry.cn-shanghai.aliyuncs.com/jindofs
+      imageName: jindo-fuse
+      imageTag: 6.2.0
+    controller:
+      imagePrefix: *defaultImagePrefix
+      imageName: jindoruntime-controller
+      imageTag: *defaultVersion
+    init:
+      portCheck:
+        enabled: false
+      imagePrefix: *defaultImagePrefix
+      imageName: init-users
+      imageTag: v0.9.0
+  goosefs:
+    replicas: 1
+    tolerations:
+      - operator: Exists
+    resources: ~
+    # resources:
+    #   requests:
+    #     cpu: 500m
+    #     memory: 256Mi
+    #   limits:
+    #     cpu: 1000m
+    #     memory: 512Mi
+    runtimeWorkers: 3
+    portRange: 26000-32000
+    portAllocatePolicy: random
+    enabled: false
+    init:
+      imagePrefix: *defaultImagePrefix
+      imageName: init-users
+      imageTag: v0.9.0
+    controller:
+      imagePrefix: *defaultImagePrefix
+      imageName: goosefsruntime-controller
+      imageTag: *defaultVersion
+    runtime:
+      imagePrefix: ccr.ccs.tencentyun.com/qcloud
+      imageName: goosefs
+      imageTag: v1.2.0
+    fuse:
+      imagePrefix: ccr.ccs.tencentyun.com/qcloud
+      imageName: goosefs-fuse
+      imageTag: v1.2.0
+  juicefs:
+    replicas: 1
+    tolerations:
+      - operator: Exists
+    resources: ~
+    # resources:
+    #   requests:
+    #     cpu: 500m
+    #     memory: 256Mi
+    #   limits:
+    #     cpu: 1000m
+    #     memory: 512Mi
+    enabled: false
+    runtimeWorkers: 3
+    controller:
+      imagePrefix: *defaultImagePrefix
+      imageName: juicefsruntime-controller
+      imageTag: *defaultVersion
+    fuse:
+      ceimagePrefix: juicedata
+      ceimageName: mount
+      ceimageTag: ce-v1.2.0
+      eeimagePrefix: juicedata
+      eeimageName: mount
+      eeimageTag: ee-5.0.21-317356c
+  thin:
+    replicas: 1
+    tolerations:
+      - operator: Exists
+    resources: ~
+    # resources:
+    #   requests:
+    #     cpu: 500m
+    #     memory: 256Mi
+    #   limits:
+    #     cpu: 1000m
+    #     memory: 512Mi
+    enabled: false
+    runtimeWorkers: 3
+    controller:
+      imagePrefix: *defaultImagePrefix
+      imageName: thinruntime-controller
+      imageTag: *defaultVersion
+    fuse:
+      configStorage: configmap
+  efc:
+    replicas: 1
+    tolerations:
+      - operator: Exists
+    resources: ~
+    # resources:
+    #   requests:
+    #     cpu: 500m
+    #     memory: 256Mi
+    #   limits:
+    #     cpu: 1000m
+    #     memory: 512Mi
+    enabled: false
+    controller:
+      imagePrefix: *defaultImagePrefix
+      imageName: efcruntime-controller
+      imageTag: *defaultVersion
+      imagePullPolicy: Always
+    init:
+      imagePrefix: registry.cn-zhangjiakou.aliyuncs.com/nascache
+      imageName: init-alifuse
+      imageTag: v1.2.2-19dcee9
+    master:
+      imagePrefix: registry.cn-zhangjiakou.aliyuncs.com/nascache
+      imageName: efc-master
+      imageTag: v1.2.2-19dcee9
+    worker:
+      imagePrefix: registry.cn-zhangjiakou.aliyuncs.com/nascache
+      imageName: efc-worker
+      imageTag: v1.2.2-19dcee9
+    fuse:
+      imagePrefix: registry.cn-zhangjiakou.aliyuncs.com/nascache
+      imageName: efc-fuse
+      imageTag: v1.2.2-19dcee9
+  vineyard:
+    replicas: 1
+    portRange: 32000-34000
+    tolerations:
+      - operator: Exists
+    resources: ~
+    # resources:
+    #   requests:
+    #     cpu: 500m
+    #     memory: 256Mi
+    #   limits:
+    #     cpu: 1000m
+    #     memory: 512Mi
+    enabled: false
+    controller:
+      imagePrefix: *defaultImagePrefix
+      imageName: vineyardruntime-controller
+      imageTag: *defaultVersion
+      imagePullPolicy: Always
+    master:
+      imagePrefix: registry.aliyuncs.com/vineyard
+      imageName: vineyardd
+      imageTag: v0.22.2
+    worker:
+      imagePrefix: registry.aliyuncs.com/vineyard
+      imageName: vineyardd
+      imageTag: v0.22.2
+    fuse:
+      imagePrefix: registry.aliyuncs.com/vineyard
+      imageName: vineyard-fluid-fuse
+      imageTag: v0.22.2
+
+webhook:
+  enabled: true
+  imagePrefix: *defaultImagePrefix
+  imageName: fluid-webhook
+  imageTag: *defaultVersion
+  replicas: 1
+  timeoutSeconds: 15
+  reinvocationPolicy: IfNeeded
+  tolerations:
+    - operator: Exists
+  resources: ~
+  # resources:
+  #   requests:
+  #     cpu: 500m
+  #     memory: 256Mi
+  #   limits:
+  #     cpu: 1000m
+  #     memory: 512Mi
+
+  # if configmap `webhook-plugins` exists and not want to replace the content, set this to false.
+  forceReplacePluginsProfile: false
+  pluginsProfile:
+    plugins:
+      # serverful webhook plugins
+      serverful:
+        withDataset:
+          - RequireNodeWithFuse
+          - NodeAffinityWithCache
+          - MountPropagationInjector
+          - DatasetUsageInjector
+        withoutDataset:
+          - PreferNodesWithoutCache
+      # serverless webhook plugins
+      serverless:
+        withDataset:
+          - FuseSidecar
+          - DatasetUsageInjector
+        withoutDataset: []
+    pluginConfig:
+      - name: NodeAffinityWithCache
+        # plugin args is a serialized yaml string.
+        args: |
+          preferred:
+            # fluid.io/fuse is a fluid built-in affinity, prefer to schedule pods to nodes with runtime fuse pods.
+            # - name: fluid.io/fuse
+            #   weight: 100
+            # fluid.io/node is a fluid built-in affinity, prefer to schedule pods to nodes with runtime worker pods.
+            - name: fluid.io/node
+              weight: 100
+            # runtime worker's zone label name, can be changed according to k8s environment.
+            - name: topology.kubernetes.io/zone
+              weight: 50
+            # runtime worker's region label name, can be changed according to k8s environment.
+            - name: topology.kubernetes.io/region
+              weight: 20
+          # used when app pod with label fluid.io/dataset.{dataset name}.sched set true
+          required:
+            - fluid.io/node
+
+
+fluidapp:
+  enabled: true
+  replicas: 1
+  tolerations:
+    - operator: Exists
+  resources: ~
+  # resources:
+  #   requests:
+  #     cpu: 500m
+  #     memory: 256Mi
+  #   limits:
+  #     cpu: 1000m
+  #     memory: 512Mi
+  controller:
+    imagePrefix: *defaultImagePrefix
+    imageName: application-controller
+    imageTag: *defaultVersion
+  featureGates: "DataflowAffinity=false"
