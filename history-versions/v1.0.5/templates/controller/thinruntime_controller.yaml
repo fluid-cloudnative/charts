@@ -1,0 +1,71 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: thinruntime-controller
+  namespace: {{ include "fluid.namespace" . }}
+  labels:
+    control-plane: thinruntime-controller
+spec:
+  selector:
+    matchLabels:
+      control-plane: thinruntime-controller
+  {{ if .Values.runtime.thin.enabled -}}
+  replicas: {{ .Values.runtime.thin.replicas }}
+  {{- else }}
+  replicas: 0
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        control-plane: thinruntime-controller
+      annotations:
+      {{ if gt (.Values.runtime.thin.replicas | int) 1 -}}
+        controller.runtime.fluid.io/replicas: {{ .Values.runtime.thin.replicas | quote }}
+      {{- end }}
+    spec:
+      {{- with .Values.image.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: thinruntime-controller
+      {{ include "fluid.controlplane.affinity" . | nindent 6}}
+      {{- if .Values.runtime.thin.tolerations }}
+      tolerations:
+{{ toYaml .Values.runtime.thin.tolerations | indent 6 }}
+      {{- end }}
+      #hostNetwork: true
+      containers:
+      - image: {{ include "fluid.controlplane.imageTransform" (list .Values.runtime.thin.controller.imagePrefix .Values.runtime.thin.controller.imageName .Values.runtime.thin.controller.imageTag . ) }}
+        name: manager
+        args:
+          - --development=false
+          - --pprof-addr=:6060
+          - --enable-leader-election
+          - --runtime-workers={{ .Values.runtime.thin.runtimeWorkers }}
+          - --leader-election-namespace={{ include "fluid.namespace" . }}
+        command: ["thinruntime-controller", "start"]
+        env:
+          {{- if .Values.runtime.mountRoot }}
+          - name: MOUNT_ROOT
+            value: {{ .Values.runtime.mountRoot | quote }}
+          {{- end }}
+          {{- if .Values.runtime.criticalFusePod }}
+          - name: CRITICAL_FUSE_POD
+            value: {{ ternary "true" "false" (semverCompare ">=1.16.0-0" .Capabilities.KubeVersion.Version) | quote }}
+          {{- end }}
+          {{- if .Values.runtime.syncRetryDuration }}
+          - name: FLUID_SYNC_RETRY_DURATION
+            value: {{ .Values.runtime.syncRetryDuration | quote }}
+          {{- end }}
+          - name: HELM_DRIVER
+            value: {{ template "fluid.helmDriver" . }}
+          - name: THIN_FUSE_CONFIG_STORAGE
+            value: {{ .Values.runtime.thin.fuse.configStorage }}
+        ports:
+          - containerPort: 8080
+            name: metrics
+            protocol: TCP
+        resources:
+          {{- include "fluid.controlplane.resources" (list $ .Values.runtime.thin.resources) | nindent 10 }}
+      terminationGracePeriodSeconds: 10
