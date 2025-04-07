@@ -14,7 +14,7 @@ image:
 # Default registry, namespace and version tag for images managed by fluid
 imagePrefix: &defaultImagePrefix fluidcloudnative
 # imagePrefix: &defaultImagePrefix registry.aliyuncs.com/fluid
-version: &defaultVersion v1.0.6-ef1d0d0
+version: &defaultVersion v1.0.6-0b77dc2
 
 crdUpgrade:
   enabled: true
@@ -319,6 +319,7 @@ webhook:
           - NodeAffinityWithCache
           - MountPropagationInjector
           - DatasetUsageInjector
+          - FilePrefetcher
         withoutDataset:
           - PreferNodesWithoutCache
       # serverless webhook plugins
@@ -326,6 +327,7 @@ webhook:
         withDataset:
           - FuseSidecar
           - DatasetUsageInjector
+          - FilePrefetcher
         withoutDataset: []
     pluginConfig:
       - name: NodeAffinityWithCache
