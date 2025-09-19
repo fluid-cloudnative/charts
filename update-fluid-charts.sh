@@ -6,6 +6,9 @@ charts_dir="charts"
 fluid_dir="$charts_dir/fluid"
 fluid_source_dir="../fluid/$charts_dir/fluid"
 
+mkdir -p test
+cp -r ../fluid/test/gha-e2e test/
+
 # Ensure the current directory is the 'charts' directory
 if [ "$(basename $(pwd))" != "$charts_dir" ]; then
   echo "Error: The script should be executed in the 'charts' directory."
