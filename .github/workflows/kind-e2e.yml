@@ -21,10 +21,11 @@ jobs:
       matrix:
         kubernetes-version: ["v1.33.2", "v1.30.13", "v1.28.15", "v1.24.17", "v1.22.17"]
     env:
+      workspace: ${{ github.workspace }}
       KIND_CLUSTER: fluid-cluster
     defaults:
       run:
-        working-directory: ${{ env.GOPATH }}/src/github.com/fluid-cloudnative/charts
+        working-directory: ${{ env.workspace }}/src/github.com/fluid-cloudnative/charts
 
     steps:
       
@@ -34,7 +35,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
-          path: ${{ env.GOPATH }}/src/github.com/fluid-cloudnative/charts
+          path: ${{ env.workspace }}/src/github.com/fluid-cloudnative/charts
 
       - name: Create k8s Kind Cluster
         uses: helm/kind-action@a1b0e391336a6ee6713a0583f8c6240d70863de3 # v1.12.0
