@@ -1,3 +1,4 @@
+{{ if .Values.csi.enabled -}}
 kind: DaemonSet
 apiVersion: apps/v1
 metadata:
@@ -41,6 +42,7 @@ spec:
       containers:
       - name: node-driver-registrar
         image: {{ include "fluid.controlplane.imageTransform" (list .Values.csi.registrar.imagePrefix .Values.csi.registrar.imageName .Values.csi.registrar.imageTag . ) }}
+        imagePullPolicy: IfNotPresent
         args:
           - --v=5
           - --csi-address={{ .Values.csi.kubelet.rootDir }}/csi-plugins/fuse.csi.fluid.io/csi.sock
@@ -64,6 +66,7 @@ spec:
             add: ["SYS_ADMIN"]
           allowPrivilegeEscalation: true
         image: {{ include "fluid.controlplane.imageTransform" (list .Values.csi.plugins.imagePrefix .Values.csi.plugins.imageName .Values.csi.plugins.imageTag . ) }}
+        imagePullPolicy: IfNotPresent
         command: ["/usr/local/bin/entrypoint.sh"]
         args:
           - "--nodeid=$(NODE_ID)"
@@ -167,3 +170,4 @@ spec:
             path: /etc/updatedb.conf.backup
             type: FileOrCreate
           name: updatedb-conf-bak
+{{- end }}
