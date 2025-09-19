@@ -5,6 +5,12 @@ function syslog() {
 }
 
 function check_control_plane_status() {
+    cho "=== Unique image tags used by Fluid control plane ==="
+    kubectl get pod -n fluid-system -o jsonpath='
+      {range .items[*]}{range .spec.containers[*]}{.image}{"\n"}{end}{range .spec.initContainers[*]}{.image}{"\n"}{end}{end}' \
+      | sed 's/.*://' \
+      | sort -u
+
     while true; do
         total_pods=$(kubectl get pod -n fluid-system --no-headers | grep -cv "Completed")
         running_pods=$(kubectl get pod -n fluid-system --no-headers | grep -c "Running")
