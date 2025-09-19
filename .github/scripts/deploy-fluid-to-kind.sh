@@ -4,7 +4,7 @@ set -e
 function main() {
     kubectl create ns fluid-system
     pwd
-    helm install --create-namespace fluid charts/charts/fluid
+    helm install --create-namespace fluid charts/fluid
 }
 
 main
