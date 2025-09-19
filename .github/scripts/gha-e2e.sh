@@ -5,7 +5,7 @@ function syslog() {
 }
 
 function check_control_plane_status() {
-    cho "=== Unique image tags used by Fluid control plane ==="
+    echo "=== Unique image tags used by Fluid control plane ==="
     kubectl get pod -n fluid-system -o jsonpath='
       {range .items[*]}{range .spec.containers[*]}{.image}{"\n"}{end}{range .spec.initContainers[*]}{.image}{"\n"}{end}{end}' \
       | sed 's/.*://' \
