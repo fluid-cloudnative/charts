@@ -1,0 +1,206 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: dataset-controller
+rules:
+  - apiGroups:
+    - ""
+    resources:
+    - persistentvolumes
+    - persistentvolumeclaims
+    verbs:
+    - get
+    - list
+    - watch
+  - apiGroups:
+    - ""
+    resources:
+    - namespaces
+    verbs:
+    - get
+    - list
+    - watch
+  - apiGroups:
+      - batch
+    resources:
+      - jobs
+      - jobs/status
+      - cronjobs
+      - cronjobs/status
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - delete
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - delete
+      - update
+  - apiGroups:
+      - ""
+    resources:
+      - services
+    verbs:
+      - create
+      - get
+      - delete
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - pods/exec
+    verbs:
+      - create
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+      - patch
+{{- template "fluid.helmDriver.rbacs" . }}
+  - apiGroups:
+      - data.fluid.io
+    resources:
+      - datamigrates
+      - datamigrates/status
+      - dataloads
+      - dataloads/status
+      - databackups
+      - databackups/status
+      - dataprocesses
+      - dataprocesses/status
+      - datasets
+      - datasets/status
+      - alluxioruntimes
+      - alluxioruntimes/status
+      - jindoruntimes
+      - jindoruntimes/status
+      - goosefsruntimes
+      - goosefsruntimes/status
+      - juicefsruntimes
+      - juicefsruntimes/status
+      - thinruntimes
+      - thinruntimes/status
+      - efcruntimes
+      - efcruntimes/status
+      - vineyardruntimes
+      - vineyardruntimes/status
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - patch
+      - delete
+  - apiGroups:
+      - apps
+    resources:
+      - statefulsets
+      - statefulsets/status
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - patch
+      - delete
+  - apiGroups:
+      - apps
+    resources:
+      - daemonsets
+      - daemonsets/status
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+      - deployments/scale
+      - deployments/status
+    verbs:
+      - 'get'
+      - 'list'
+      - 'watch'
+      - 'update'
+      - 'patch'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: {{ include "fluid.namespace" . }}
+  name: dataset-controller
+rules:
+  - apiGroups:
+      - coordination.k8s.io
+    resources:
+      - leases
+    verbs:
+      - create
+  - apiGroups:
+      - coordination.k8s.io
+    resources:
+      - leases
+    resourceNames:
+      - dataset.data.fluid.io
+    verbs:
+      - get
+      - list
+      - watch
+      - update
+      - patch
+      - delete
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: dataset-clusterrolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: dataset-controller
+subjects:
+  - kind: ServiceAccount
+    name: dataset-controller
+    namespace: {{ include "fluid.namespace" . }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: dataset-controller
+  namespace: {{ include "fluid.namespace" . }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: dataset-controller
+subjects:
+  - kind: ServiceAccount
+    name: dataset-controller
+    namespace: {{ include "fluid.namespace" . }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: dataset-controller
+  namespace: {{ include "fluid.namespace" . }}
