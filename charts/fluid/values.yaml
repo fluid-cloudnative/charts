@@ -14,7 +14,7 @@ image:
 # Default registry, namespace and version tag for images managed by fluid
 imagePrefix: &defaultImagePrefix fluidcloudnative
 # imagePrefix: &defaultImagePrefix registry.aliyuncs.com/fluid
-version: &defaultVersion v1.0.8-2cfd7995
+version: &defaultVersion v1.0.8-9b73834
 
 crdUpgrade:
   enabled: true
@@ -61,7 +61,7 @@ csi:
   registrar:
     imagePrefix: *defaultImagePrefix
     imageName: csi-node-driver-registrar
-    imageTag: v2.3.0
+    imageTag: v2.14.0
   plugins:
     imagePrefix: *defaultImagePrefix
     imageName: fluid-csi
@@ -84,6 +84,9 @@ csi:
 runtime:
   criticalFusePod: true
   syncRetryDuration: 15s
+  # syncScheduleInfoNodeExcludeSelector is used to exclude nodes that should be skipped when syncing schedule info
+  # e.g. syncScheduleInfoNodeExcludeSelector: "mynode=dev,type=virtual-kubelet"
+  syncScheduleInfoNodeExcludeSelector: ""
   mountRoot: /runtime-mnt
   alluxio:
     replicas: 1
