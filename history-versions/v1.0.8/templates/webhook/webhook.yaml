@@ -1,0 +1,87 @@
+{{ if .Values.webhook.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fluid-webhook
+  namespace: {{ include "fluid.namespace" . }}
+  labels:
+    control-plane: fluid-webhook
+spec:
+  selector:
+    matchLabels:
+      control-plane: fluid-webhook
+  replicas: {{ .Values.webhook.replicas }}
+  template:
+    metadata:
+      labels:
+        control-plane: fluid-webhook
+    spec:
+      {{- if .Values.webhook.tolerations }}
+      tolerations:
+{{ toYaml .Values.webhook.tolerations | indent 8}}
+      {{- end }}
+      {{- with .Values.image.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: fluid-webhook
+      {{ include "fluid.controlplane.affinity" . | nindent 6}}
+      containers:
+      - image: {{ include "fluid.controlplane.imageTransform" (list .Values.webhook.imagePrefix .Values.webhook.imageName .Values.webhook.imageTag . ) }}
+        imagePullPolicy: IfNotPresent
+        name: manager
+        command: ["fluid-webhook", "start"]
+        args:
+          - --development=false
+          - --full-go-profile=false
+          - --pprof-addr=:6060
+        env:
+          - name: MY_POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: TIME_TRACK
+            value: "false"
+          {{- if .Values.webhook.serverlessInject }}
+          {{- if .Values.webhook.serverlessInject.platformKey }}
+          - name: KEY_SERVERLESS_PLATFORM
+            value: {{ .Values.webhook.serverlessInject.platformKey | quote }}
+          {{- end }}
+          {{- if .Values.webhook.serverlessInject.platformValue }}
+          - name: VALUE_SERVERLESS_PLATFORM
+            value: {{ .Values.webhook.serverlessInject.platformValue | quote }}
+          {{- end }}
+          {{- if .Values.webhook.serverlessInject.vfuseResourceName }}
+          - name: VFUSE_RESOURCE_NAME
+            value: {{ .Values.webhook.serverlessInject.vfuseResourceName | quote }}
+          {{- end }}
+          {{- end }}
+          {{- if .Values.webhook.filePrefetcher }}
+          - name: FILE_PREFETCHER_IMAGE
+            value: {{ include "fluid.controlplane.imageTransform" (list .Values.webhook.filePrefetcher.imagePrefix .Values.webhook.filePrefetcher.imageName .Values.webhook.filePrefetcher.imageTag . ) }}
+          {{- end }}
+          {{- if .Values.webhook.fuseSidecar.sidecarInjectionMode }}
+          {{- if ( and (eq .Values.webhook.fuseSidecar.sidecarInjectionMode "native-sidecar") ( semverCompare "<1.28.0-0" .Capabilities.KubeVersion.Version ) ) }}
+          {{- fail "native-sidecar is not supported in kubernetes version < 1.28.0-0" }}
+          {{- end }}
+          - name: FUSE_SIDECAR_INJECTION_MODE
+            value: {{ .Values.webhook.fuseSidecar.sidecarInjectionMode | quote }}
+          {{- end }}
+        ports:
+          - containerPort: 8080
+            name: metrics
+            protocol: TCP
+        resources:
+          {{- include "fluid.controlplane.resources" (list $ .Values.webhook.resources) | nindent 10 }}
+        volumeMounts:
+          - mountPath: /etc/fluid
+            name: webhook-plugins
+      volumes:
+        - name: webhook-plugins
+          configMap:
+            name: webhook-plugins
+            items:
+              - key: pluginsProfile
+                path: plugins.profile
+                mode: 0444
+{{- end }}
