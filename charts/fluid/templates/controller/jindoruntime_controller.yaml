@@ -30,6 +30,10 @@ spec:
       {{- end }}
       serviceAccountName: jindoruntime-controller
       {{ include "fluid.controlplane.affinity" . | nindent 6}}
+      {{- if .Values.runtime.jindo.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.runtime.jindo.nodeSelector | indent 8 }}
+      {{- end }}
       {{- if .Values.runtime.jindo.tolerations }}
       tolerations:
 {{ toYaml .Values.runtime.jindo.tolerations | indent 6 }}

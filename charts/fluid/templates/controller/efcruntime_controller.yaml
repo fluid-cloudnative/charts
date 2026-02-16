@@ -30,6 +30,10 @@ spec:
       {{- end }}
       serviceAccountName: efcruntime-controller
       {{ include "fluid.controlplane.affinity" . | nindent 6}}
+      {{- if .Values.runtime.efc.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.runtime.efc.nodeSelector | indent 8 }}
+      {{- end }}
       {{- if .Values.runtime.efc.tolerations }}
       tolerations:
 {{ toYaml .Values.runtime.efc.tolerations | indent 6 }}

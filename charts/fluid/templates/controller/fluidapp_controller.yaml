@@ -26,6 +26,10 @@ spec:
       {{- end }}
       serviceAccountName: fluidapp-controller
       {{ include "fluid.controlplane.affinity" . | nindent 6}}
+      {{- if .Values.fluidapp.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.fluidapp.nodeSelector | indent 8 }}
+      {{- end }}
       {{- if .Values.fluidapp.tolerations }}
       tolerations:
 {{ toYaml .Values.fluidapp.tolerations | indent 6 }}

@@ -20,6 +20,10 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: fluid-csi
+      {{- if .Values.csi.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.csi.nodeSelector | indent 8 }}
+      {{- end }}
       {{- if .Values.csi.tolerations }}
       tolerations:
 {{ toYaml .Values.csi.tolerations | indent 6 }}

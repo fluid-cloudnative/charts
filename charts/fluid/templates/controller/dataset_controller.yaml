@@ -28,6 +28,10 @@ spec:
       {{- end }}
       serviceAccountName: dataset-controller
       {{ include "fluid.controlplane.affinity" . | nindent 6}}
+      {{- if .Values.dataset.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.dataset.nodeSelector | indent 8}}
+      {{- end }}
       {{- if .Values.dataset.tolerations }}
       tolerations:
 {{ toYaml .Values.dataset.tolerations | indent 6}}

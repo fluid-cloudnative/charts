@@ -20,6 +20,8 @@ crdUpgrade:
   enabled: true
   tolerations:
     - operator: Exists
+  nodeSelector:
+    kubernetes.io/os: linux
   # This sets the time-to-live (TTL) for crd-upgrade jobs. Default is 259200 seconds (3 days).
   ttlSecondsAfterFinished: 259200 
   imagePrefix: *defaultImagePrefix
@@ -33,6 +35,8 @@ dataset:
   replicas: 1
   tolerations:
     - operator: Exists
+  nodeSelector:
+    kubernetes.io/os: linux
   resources: ~
   # resources:
   #   requests:
@@ -55,6 +59,8 @@ csi:
   enabled: true
   tolerations:
     - operator: Exists
+  nodeSelector:
+    kubernetes.io/os: linux
   featureGates: "FuseRecovery=false"
   config:
     hostNetwork: false
@@ -93,6 +99,8 @@ runtime:
     env: []
     tolerations:
       - operator: Exists
+    nodeSelector:
+      kubernetes.io/os: linux
     resources: ~
     # resources:
     #   requests:
@@ -131,6 +139,8 @@ runtime:
     env: []
     tolerations:
       - operator: Exists
+    nodeSelector:
+      kubernetes.io/os: linux
     resources: ~
     # resources:
     #   requests:
@@ -172,6 +182,8 @@ runtime:
     env: []
     tolerations:
       - operator: Exists
+    nodeSelector:
+      kubernetes.io/os: linux
     resources: ~
     # resources:
     #   requests:
@@ -209,6 +221,8 @@ runtime:
     env: []
     tolerations:
       - operator: Exists
+    nodeSelector:
+      kubernetes.io/os: linux
     resources: ~
     # resources:
     #   requests:
@@ -240,6 +254,8 @@ runtime:
     syncRetryRateLimitDuration: 0s
     tolerations:
       - operator: Exists
+    nodeSelector:
+      kubernetes.io/os: linux
     resources: ~
     # resources:
     #   requests:
@@ -265,6 +281,8 @@ runtime:
     env: []
     tolerations:
       - operator: Exists
+    nodeSelector:
+      kubernetes.io/os: linux
     resources: ~
     # resources:
     #   requests:
@@ -305,6 +323,8 @@ runtime:
     portRange: 32000-34000
     tolerations:
       - operator: Exists
+    nodeSelector:
+      kubernetes.io/os: linux
     resources: ~
     # resources:
     #   requests:
@@ -346,6 +366,8 @@ webhook:
   reinvocationPolicy: IfNeeded
   tolerations:
     - operator: Exists
+  nodeSelector:
+    kubernetes.io/os: linux
   resources: ~
   # resources:
   #   requests:
@@ -414,6 +436,8 @@ fluidapp:
   replicas: 1
   tolerations:
     - operator: Exists
+  nodeSelector:
+    kubernetes.io/os: linux
   resources: ~
   # resources:
   #   requests:

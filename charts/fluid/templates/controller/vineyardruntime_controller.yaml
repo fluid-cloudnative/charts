@@ -30,6 +30,10 @@ spec:
       {{- end }}
       serviceAccountName: vineyardruntime-controller
       {{ include "fluid.controlplane.affinity" . | nindent 6}}
+      {{- if .Values.runtime.vineyard.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.runtime.vineyard.nodeSelector | indent 8 }}
+      {{- end }}
       {{- if .Values.runtime.vineyard.tolerations }}
       tolerations:
 {{ toYaml .Values.runtime.vineyard.tolerations | indent 6 }}

@@ -30,6 +30,10 @@ spec:
       {{- end }}
       serviceAccountName: thinruntime-controller
       {{ include "fluid.controlplane.affinity" . | nindent 6}}
+      {{- if .Values.runtime.thin.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.runtime.thin.nodeSelector | indent 8 }}
+      {{- end }}
       {{- if .Values.runtime.thin.tolerations }}
       tolerations:
 {{ toYaml .Values.runtime.thin.tolerations | indent 6 }}

@@ -30,6 +30,10 @@ spec:
       {{- end }}
       serviceAccountName: alluxioruntime-controller
       {{ include "fluid.controlplane.affinity" . | nindent 6}}
+      {{- if .Values.runtime.alluxio.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.runtime.alluxio.nodeSelector | indent 8 }}
+      {{- end }}
       {{- if .Values.runtime.alluxio.tolerations }}
       tolerations:
 {{ toYaml .Values.runtime.alluxio.tolerations | indent 6}}
