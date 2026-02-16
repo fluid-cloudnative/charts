@@ -26,6 +26,10 @@ spec:
       {{- end }}
       serviceAccountName: fluid-webhook
       {{ include "fluid.controlplane.affinity" . | nindent 6}}
+      {{- if .Values.webhook.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.webhook.nodeSelector | indent 8}}
+      {{- end }}
       containers:
       - image: {{ include "fluid.controlplane.imageTransform" (list .Values.webhook.imagePrefix .Values.webhook.imageName .Values.webhook.imageTag . ) }}
         imagePullPolicy: IfNotPresent

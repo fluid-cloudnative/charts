@@ -30,6 +30,10 @@ spec:
       {{- end }}
       serviceAccountName: juicefsruntime-controller
       {{ include "fluid.controlplane.affinity" . | nindent 6}}
+      {{- if .Values.runtime.juicefs.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.runtime.juicefs.nodeSelector | indent 8 }}
+      {{- end }}
       {{- if .Values.runtime.juicefs.tolerations }}
       tolerations:
 {{ toYaml .Values.runtime.juicefs.tolerations | indent 6 }}

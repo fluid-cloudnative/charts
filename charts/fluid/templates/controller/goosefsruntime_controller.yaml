@@ -30,6 +30,10 @@ spec:
       {{- end }}
       serviceAccountName: goosefsruntime-controller
       {{ include "fluid.controlplane.affinity" . | nindent 6}}
+      {{- if .Values.runtime.goosefs.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.runtime.goosefs.nodeSelector | indent 8 }}
+      {{- end }}
       {{- if .Values.runtime.goosefs.tolerations }}
       tolerations:
 {{ toYaml .Values.runtime.goosefs.tolerations | indent 6 }}
