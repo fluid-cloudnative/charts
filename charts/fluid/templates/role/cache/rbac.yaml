@@ -2,123 +2,122 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: goosefsruntime-controller
+  name: cacheruntime-controller
 rules:
   - apiGroups:
-    - ""
+      - ""
     resources:
-    - namespaces
+      - namespaces
     verbs:
-    - get
-    - list
-    - watch
+      - get
+      - list
+      - watch
   - apiGroups:
-    - ""
+      - ""
     resources:
-    - configmaps
+      - configmaps
     verbs:
-    - get
-    - list
-    - watch
-    - create
-    - update
-    - delete
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - delete
   - apiGroups:
-    - ""
+      - ""
     resources:
-    - persistentvolumeclaims
+      - persistentvolumeclaims
     verbs:
-    - get
-    - list
-    - watch
-    - create
-    - update
-    - delete
+      - get
+      - list
+      - watch
+      - create
+      - delete
   - apiGroups:
-    - ""
+      - ""
     resources:
-    - persistentvolumes
+      - persistentvolumes
     verbs:
-    - get
-    - list
-    - watch
-    - create
-    - delete
+      - get
+      - list
+      - watch
+      - create
+      - delete
   - apiGroups:
-    - ""
+      - ""
     resources:
-    - pods
+      - pods
     verbs:
-    - get
-    - list
-    - watch
+      - get
+      - list
+      - watch
   - apiGroups:
-    - ""
+      - ""
     resources:
-    - pods/exec
+      - pods/exec
     verbs:
-    - create
+      - create
   - apiGroups:
-    - ""
+      - ""
     resources:
-    - nodes
+      - nodes
     verbs:
-    - get
-    - list
-    - watch
-    - patch
+      - get
+      - list
+      - watch
+      - patch
   - apiGroups:
-    - ""
+      - ""
     resources:
-    - events
+      - events
     verbs:
-    - create
-    - patch
+      - create
+      - patch
   - apiGroups:
-    - ""
+      - ""
     resources:
-    - secrets
+      - services
     verbs:
-    - list
-    - watch
-    - get
-    - create
-    - delete
-    - update
-  - apiGroups:
-    - ""
-    resources:
-    - services
-    verbs:
-    - create
-    - delete
-    - list
-    - watch
-    - get 
+      - get
+      - list
+      - watch
+      - create
+      - delete
   - apiGroups:
       - data.fluid.io
     resources:
-      - goosefsdataloads
-      - goosefsruntimes
+      - cacheruntimes
+      - cacheruntimes/status
+      - cacheruntimes/finalizers
       - datasets
-      - goosefsdataloads/status
-      - goosefsruntimes/status
       - datasets/status
     verbs:
       - get
       - list
       - watch
-      - create
       - update
       - patch
-      - delete
+  - apiGroups:
+      - data.fluid.io
+    resources:
+      - cacheruntimeclasses
+    verbs:
+      - get
+      - list
+      - watch
   - apiGroups:
       - apps
     resources:
       - daemonsets
-      - statefulsets
-      - daemonsets/status
-      - statefulsets/status
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+  - apiGroups:
+      - workload.fluid.io
+    resources:
+      - advancedstatefulsets
     verbs:
       - get
       - list
@@ -126,13 +125,12 @@ rules:
       - create
       - update
       - patch
-      - delete
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   namespace: {{ include "fluid.namespace" . }}
-  name: goosefsruntime-controller
+  name: cacheruntime-controller
 rules:
   - apiGroups:
       - coordination.k8s.io
@@ -145,7 +143,7 @@ rules:
     resources:
       - leases
     resourceNames:
-      - goosefs.data.fluid.io
+      - cache.data.fluid.io
     verbs:
       - get
       - list
@@ -157,32 +155,32 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: goosefsruntime-clusterrolebinding
+  name: cacheruntime-clusterrolebinding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: goosefsruntime-controller
+  name: cacheruntime-controller
 subjects:
   - kind: ServiceAccount
-    name: goosefsruntime-controller
+    name: cacheruntime-controller
     namespace: {{ include "fluid.namespace" . }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: goosefsruntime-rolebinding
+  name: cacheruntime-rolebinding
   namespace: {{ include "fluid.namespace" . }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: goosefsruntime-controller
+  name: cacheruntime-controller
 subjects:
   - kind: ServiceAccount
-    name: goosefsruntime-controller
+    name: cacheruntime-controller
     namespace: {{ include "fluid.namespace" . }}
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: goosefsruntime-controller
+  name: cacheruntime-controller
   namespace: {{ include "fluid.namespace" . }}

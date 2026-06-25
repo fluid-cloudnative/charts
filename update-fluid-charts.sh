@@ -9,6 +9,9 @@ fluid_source_dir="../fluid/$charts_dir/fluid"
 mkdir -p test
 cp -r ../fluid/test/gha-e2e test/
 
+mkdir -p .github/scripts
+cp ../fluid/.github/scripts/gha-e2e.sh .github/scripts/gha-e2e.sh
+
 # Ensure the current directory is the 'charts' directory
 if [ "$(basename $(pwd))" != "$charts_dir" ]; then
   echo "Error: The script should be executed in the 'charts' directory."
