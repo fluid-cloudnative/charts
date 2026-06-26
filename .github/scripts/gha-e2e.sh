@@ -85,7 +85,6 @@ function check_control_plane_status() {
     syslog "Fluid control plane is ready after $counter checks!"
 }
 
-
 function alluxio_e2e() {
     set -e
     bash test/gha-e2e/alluxio/test.sh
@@ -101,7 +100,13 @@ function juicefs_e2e() {
     bash test/gha-e2e/juicefs/test.sh
 }
 
+function curvine_e2e() {
+    set -e
+    bash test/gha-e2e/curvine/test.sh
+}
+
 check_control_plane_status
 alluxio_e2e
 jindo_e2e
 juicefs_e2e
+curvine_e2e
