@@ -299,6 +299,91 @@ function wait_dataload_completed() {
     done
     syslog "Found succeeded dataload_name $dataload_name"
 }
+function scale_worker_and_verify() {
+    local target_replicas=$1
+    local worker_component_name="${dataset_name}-worker"
+    local deadline=180
+    local counter=0
+
+    syslog "Scaling worker to $target_replicas replicas"
+    kubectl patch cacheruntime $dataset_name --type merge -p "{\"spec\":{\"worker\":{\"replicas\":$target_replicas}}}"
+
+    while true; do
+        local ready_replicas=""
+        local desired_replicas=""
+        ready_replicas=$(kubectl get cacheruntime $dataset_name -ojsonpath='{@.status.worker.readyReplicas}' 2>/dev/null)
+        desired_replicas=$(kubectl get cacheruntime $dataset_name -ojsonpath='{@.status.worker.desiredReplicas}' 2>/dev/null)
+
+        if [[ "$ready_replicas" == "$target_replicas" ]] && [[ "$desired_replicas" == "$target_replicas" ]]; then
+            break
+        fi
+
+        counter=$((counter + 1))
+        if [[ $((counter * 5)) -ge $deadline ]]; then
+            panic "timeout ${deadline}s waiting for worker scale to $target_replicas (ready: ${ready_replicas:-<empty>}, desired: ${desired_replicas:-<empty>})"
+        fi
+        sleep 5
+    done
+
+    # verify AdvancedStatefulSet replicas match
+    local asts_replicas=""
+    asts_replicas=$(kubectl get advancedstatefulset "$worker_component_name" -ojsonpath='{@.spec.replicas}' 2>/dev/null)
+    if [[ "$asts_replicas" != "$target_replicas" ]]; then
+        panic "AdvancedStatefulSet replicas mismatch: expected $target_replicas, got $asts_replicas"
+    fi
+
+    local asts_ready=""
+    asts_ready=$(kubectl get advancedstatefulset "$worker_component_name" -ojsonpath='{@.status.readyReplicas}' 2>/dev/null)
+    if [[ "$asts_ready" != "$target_replicas" ]]; then
+        panic "AdvancedStatefulSet readyReplicas mismatch: expected $target_replicas, got $asts_ready"
+    fi
+
+    syslog "Worker scaled to $target_replicas replicas successfully (asts replicas=$asts_replicas, ready=$asts_ready)"
+}
+
+function delete_dataset_and_runtime() {
+    kubectl delete --ignore-not-found -f test/gha-e2e/curvine/dataload.yaml
+    kubectl delete --ignore-not-found -f test/gha-e2e/curvine/ref-dataset.yaml
+    kubectl delete -f test/gha-e2e/curvine/dataset.yaml
+    kubectl delete -f test/gha-e2e/curvine/cacheruntime.yaml
+}
+
+function wait_runtime_deleted() {
+    local deadline=120
+    local counter=0
+    while true; do
+        local remaining=""
+        remaining=$(kubectl get advancedstatefulset,daemonset,svc -l fluid.io/managed-by=fluid -n default -oname 2>/dev/null)
+        if [[ -z "$remaining" ]]; then
+            break
+        fi
+        counter=$((counter + 1))
+        if [[ $((counter * 5)) -ge $deadline ]]; then
+            syslog "remaining resources after deletion: $remaining"
+            panic "timeout ${deadline}s waiting for runtime resources to be garbage collected"
+        fi
+        sleep 5
+    done
+    syslog "All runtime resources (AdvancedStatefulSet, DaemonSet, Service) garbage collected"
+
+    # verify node labels are cleaned up
+    local cache_labels=""
+    cache_labels=$(kubectl get nodes -ojsonpath='{range .items[*]}{.metadata.labels}' 2>/dev/null | grep -o "fluid.io/s-default-${dataset_name}[^ ]*" || true)
+    if [[ -n "$cache_labels" ]]; then
+        panic "node labels not cleaned up: $cache_labels"
+    fi
+    syslog "Node labels cleaned up successfully"
+
+    # verify PV/PVC are cleaned up
+    if kubectl get pvc $dataset_name -n default >/dev/null 2>&1; then
+        panic "PVC $dataset_name still exists after deletion"
+    fi
+    if kubectl get pv default-$dataset_name >/dev/null 2>&1; then
+        panic "PV default-$dataset_name still exists after deletion"
+    fi
+    syslog "PV/PVC cleaned up successfully"
+}
+
 function main() {
     syslog "[TESTCASE $testname STARTS AT $(date)]"
     trap dump_env_and_clean_up EXIT
@@ -317,6 +402,14 @@ function main() {
     wait_job_completed $read_job_name
     create_job test/gha-e2e/curvine/read_ref_job.yaml $read_ref_job_name
     wait_job_completed $read_ref_job_name
+
+    # verify scale-up and scale-down (exercises patch on advancedstatefulsets and delete on pods)
+    scale_worker_and_verify 2
+    scale_worker_and_verify 1
+
+    # verify deletion and cleanup
+    delete_dataset_and_runtime
+    wait_runtime_deleted
 
     syslog "[TESTCASE $testname SUCCEEDED AT $(date)]"
 }
