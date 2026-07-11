@@ -14,7 +14,7 @@ image:
 # Default registry, namespace and version tag for images managed by fluid
 imagePrefix: &defaultImagePrefix fluidcloudnative
 # imagePrefix: &defaultImagePrefix registry.aliyuncs.com/fluid
-version: &defaultVersion v1.1.0-36f0467
+version: &defaultVersion v1.1.0-9b3c2e2
 
 crdUpgrade:
   enabled: true
@@ -131,6 +131,12 @@ runtime:
     portRange: 20000-26000
     portAllocatePolicy: random
     enabled: false
+    # featureGates is a comma-separated list of feature gates for alluxioruntime controller.
+    # RuntimeFuseHostPID: Controls whether the runtime.fluid.io/fuse.hostpid annotation can enable hostPID in FUSE DaemonSets.
+    #   Alpha; may change or be removed in future releases.
+    #   Disabled by default for security; the default is compiled into the controller binary and
+    #   applies when featureGates is unset, so there is no need to set RuntimeFuseHostPID=false here.
+    #   Enable only if you trust all users with AlluxioRuntime CR update permissions.
     init:
       imagePrefix: *defaultImagePrefix
       imageName: init-users
@@ -171,6 +177,12 @@ runtime:
     enabled: false
     engine: jindocache
     queryUfsTotal: true
+    # featureGates is a comma-separated list of feature gates for jindoruntime controller.
+    # RuntimeFuseHostPID: Controls whether the runtime.fluid.io/fuse.hostpid annotation can enable hostPID in FUSE DaemonSets.
+    #   Alpha; may change or be removed in future releases.
+    #   Disabled by default for security; the default is compiled into the controller binary and
+    #   applies when featureGates is unset, so there is no need to set RuntimeFuseHostPID=false here.
+    #   Enable only if you trust all users with JindoRuntime/JindoFSxRuntime/JindoCacheRuntime CR update permissions.
     smartdata:
       imagePrefix: registry.cn-shanghai.aliyuncs.com/jindofs
       imageName: smartdata
@@ -208,6 +220,12 @@ runtime:
     kubeClientBurst: 30
     workQueueQPS: 10
     workQueueBurst: 100
+    # featureGates is a comma-separated list of feature gates for juicefsruntime controller.
+    # RuntimeFuseHostPID: Controls whether the runtime.fluid.io/fuse.hostpid annotation can enable hostPID in FUSE DaemonSets.
+    #   Alpha; may change or be removed in future releases.
+    #   Disabled by default for security; the default is compiled into the controller binary and
+    #   applies when featureGates is unset, so there is no need to set RuntimeFuseHostPID=false here.
+    #   Enable only if you trust all users with JuiceFSRuntime CR update permissions.
     controller:
       imagePrefix: *defaultImagePrefix
       imageName: juicefsruntime-controller
@@ -239,6 +257,12 @@ runtime:
     kubeClientBurst: 30
     workQueueQPS: 10
     workQueueBurst: 100
+    # featureGates is a comma-separated list of feature gates for thinruntime controller.
+    # RuntimeFuseHostPID: Controls whether the runtime.fluid.io/fuse.hostpid annotation can enable hostPID in FUSE DaemonSets.
+    #   Alpha; may change or be removed in future releases.
+    #   Disabled by default for security; the default is compiled into the controller binary and
+    #   applies when featureGates is unset, so there is no need to set RuntimeFuseHostPID=false here.
+    #   Enable only if you trust all users with ThinRuntime CR update permissions.
     controller:
       imagePrefix: *defaultImagePrefix
       imageName: thinruntime-controller
@@ -304,6 +328,12 @@ runtime:
     workQueueQPS: 10
     workQueueBurst: 100
     enabled: false
+    # featureGates is a comma-separated list of feature gates for vineyardruntime controller.
+    # RuntimeFuseHostPID: Controls whether the runtime.fluid.io/fuse.hostpid annotation can enable hostPID in FUSE DaemonSets.
+    #   Alpha; may change or be removed in future releases.
+    #   Disabled by default for security; the default is compiled into the controller binary and
+    #   applies when featureGates is unset, so there is no need to set RuntimeFuseHostPID=false here.
+    #   Enable only if you trust all users with VineyardRuntime CR update permissions.
     controller:
       imagePrefix: *defaultImagePrefix
       imageName: vineyardruntime-controller
