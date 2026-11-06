@@ -13,8 +13,7 @@ image:
 
 # Default registry, namespace and version tag for images managed by fluid
 imagePrefix: &defaultImagePrefix fluidcloudnative
-# imagePrefix: &defaultImagePrefix registry.aliyuncs.com/fluid
-version: &defaultVersion v1.1.0-676f47a
+version: &defaultVersion v1.1.0-91a58c1d9
 
 crdUpgrade:
   enabled: true
@@ -88,7 +87,9 @@ runtime:
   # e.g. syncScheduleInfoNodeExcludeSelector: "mynode=dev,type=virtual-kubelet"
   syncScheduleInfoNodeExcludeSelector: ""
   mountRoot: /runtime-mnt
-  cache:
+  # cacheruntime is the controller for the CacheRuntime CRD, which integrates
+  # cache systems declaratively via CacheRuntimeClass
+  cacheruntime:
     enabled: false
     replicas: 1
     runtimeWorkers: 3
