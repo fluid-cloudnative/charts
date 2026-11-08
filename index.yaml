@@ -2,6 +2,22 @@ apiVersion: v1
 entries:
   fluid:
   - apiVersion: v2
+    appVersion: 1.1.0-91a58c1d9
+    created: "2026-11-08T11:00:38.70664042Z"
+    description: A Helm chart to deploy fluid in Kubernetes
+    digest: 3abd87821bfbdd3bf460c7f91cb4657cb37670720c1daefa511944935fb434b3
+    home: https://github.com/fluid-cloudnative/fluid
+    keywords:
+    - category:data
+    - fluid
+    - namespace:fluid-system
+    - releaseName:fluid
+    name: fluid
+    type: application
+    urls:
+    - https://github.com/fluid-cloudnative/charts/releases/download/helm-chart-fluid-1.1.0-alpha.12/fluid-1.1.0-alpha.12.tgz
+    version: 1.1.0-alpha.12
+  - apiVersion: v2
     appVersion: 1.1.0-676f47a
     created: "2026-07-15T01:58:13.933845622Z"
     description: A Helm chart to deploy fluid in Kubernetes
@@ -1761,4 +1777,4 @@ entries:
     urls:
     - https://github.com/fluid-cloudnative/charts/releases/download/helm-chart-fluid-0.8.4/fluid-0.8.4.tgz
     version: 0.8.4
-generated: "2026-07-15T01:58:13.934276878Z"
+generated: "2026-11-08T11:00:38.707059308Z"
